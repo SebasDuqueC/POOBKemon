@@ -1,7 +1,9 @@
 package domain;
 import exceptions.PoobkemonException;
+import java.io.Serializable;
 
-public class Movimiento {
+public class Movimiento  implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String nombre;
     private Tipo tipo;
     private int potencia;

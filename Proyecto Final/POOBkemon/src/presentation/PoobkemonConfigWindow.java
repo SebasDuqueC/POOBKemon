@@ -173,15 +173,52 @@ public class PoobkemonConfigWindow extends JFrame {
         String jugador1 = txtJugador1.getText().trim();
         String jugador2 = txtJugador2.getText().trim();
         String modoJuego = (String) cbModoJuego.getSelectedItem();
-
+    
         if (jugador1.isEmpty() || jugador2.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Ambos jugadores deben tener nombre.");
             return;
         }
-
+    
+        boolean esJugador1Humano = cbTipoJugador1.getSelectedIndex() == 0;
+        boolean esJugador2Humano = cbTipoJugador2.getSelectedIndex() == 0;
+    
+        // Verificar si es modo supervivencia
+        if ("Supervivencia".equals(modoJuego)) {
+            // Solo permitir PvP para modo supervivencia
+            if (!esJugador1Humano || !esJugador2Humano) {
+                JOptionPane.showMessageDialog(this, 
+                    "El modo Supervivencia solo está disponible para partidas entre jugadores humanos (PvP).",
+                    "Modo no compatible", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            try {
+                // Crear el modo supervivencia directamente
+                ModoSupervivenciaPvsP modoSupervivencia = new ModoSupervivenciaPvsP(jugador1, jugador2);
+                Entrenador entrenador1 = modoSupervivencia.getEntrenador1();
+                Entrenador entrenador2 = modoSupervivencia.getEntrenador2();
+                
+                // Abrir la pantalla de batalla con los entrenadores generados
+                PoobkemonGUI gui = new PoobkemonGUI(entrenador1, entrenador2, modoJuego);
+                gui.setVisible(true);
+                
+                // Cerrar la ventana de configuración
+                dispose();
+                
+            } catch (PoobkemonException ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error al iniciar modo supervivencia: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            return; // No continuar con el resto del método
+        }
+        
+        // MODO NORMAL - Selección manual de Pokémon
+        
         // Lista de Pokémon disponibles
         List<String> pokemonesDisponibles = PokemonFactory.obtenerNombresDePokemones();
-
+    
         // Selección para el Entrenador 1
         seleccionEntrenador1 = new PoobkemonSelectionMenu(jugador1, pokemonesDisponibles, e1 -> {
             List<String> pokemonesEntrenador1 = seleccionEntrenador1.getPokemonesSeleccionados();
@@ -189,7 +226,7 @@ public class PoobkemonConfigWindow extends JFrame {
                 JOptionPane.showMessageDialog(this, "El Entrenador 1 debe seleccionar al menos un Pokémon.");
                 return;
             }
-
+    
             // Selección para el Entrenador 2
             seleccionEntrenador2 = new PoobkemonSelectionMenu(jugador2, pokemonesDisponibles, e2 -> {
                 List<String> pokemonesEntrenador2 = seleccionEntrenador2.getPokemonesSeleccionados();
@@ -197,21 +234,18 @@ public class PoobkemonConfigWindow extends JFrame {
                     JOptionPane.showMessageDialog(this, "El Entrenador 2 debe seleccionar al menos un Pokémon.");
                     return;
                 }
-
+    
                 // Crear equipos de Pokémon basados en las selecciones
                 List<Pokemon> equipoJugador = new ArrayList<>();
                 for (String nombrePokemon : pokemonesEntrenador1) {
                     equipoJugador.add(PokemonFactory.crearPokemonPorNombre(nombrePokemon));
                 }
-
+    
                 List<Pokemon> equipoRival = new ArrayList<>();
                 for (String nombrePokemon : pokemonesEntrenador2) {
                     equipoRival.add(PokemonFactory.crearPokemonPorNombre(nombrePokemon));
                 }
-
-                boolean esJugador1Humano = cbTipoJugador1.getSelectedIndex() == 0;
-                boolean esJugador2Humano = cbTipoJugador2.getSelectedIndex() == 0;
-
+    
                 Entrenador entrenador1;
                 Entrenador entrenador2;
                 try {
@@ -221,29 +255,29 @@ public class PoobkemonConfigWindow extends JFrame {
                     JOptionPane.showMessageDialog(this, "Error al crear los entrenadores: " + ex.getMessage());
                     return;
                 }
-
+    
                 // Abrir la pantalla de batalla
                 PoobkemonGUI gui = new PoobkemonGUI(entrenador1, entrenador2, modoJuego);
                 gui.setVisible(true);
-
+    
                 // Cerrar la ventana de selección del Entrenador 2
                 SwingUtilities.getWindowAncestor(seleccionEntrenador2).dispose();
-
+    
                 // Cerrar la ventana de configuración
                 dispose();
             });
-
+    
             // Mostrar selección del Entrenador 2
             JFrame frame2 = new JFrame("Selecciona Pokémon - Entrenador 2");
             frame2.setContentPane(seleccionEntrenador2);
             frame2.setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
             frame2.setUndecorated(true); // Sin bordes
             frame2.setVisible(true);
-
+    
             // Cerrar la ventana de selección del Entrenador 1
             SwingUtilities.getWindowAncestor(seleccionEntrenador1).dispose();
         });
-
+    
         // Mostrar selección del Entrenador 1
         JFrame frame1 = new JFrame("Selecciona Pokémon - Entrenador 1");
         frame1.setContentPane(seleccionEntrenador1);

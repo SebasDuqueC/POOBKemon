@@ -2,8 +2,11 @@ package domain;
 import exceptions.PoobkemonException;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class Entrenador {
+public class Entrenador implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private String nombre;
     private boolean esHumano;
     private List<Pokemon> pokemones;

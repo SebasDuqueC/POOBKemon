@@ -5,13 +5,20 @@ import domain.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +53,11 @@ public class PoobkemonGUI extends JFrame {
     private JButton[] btnPokemones = new JButton[6];
     private JButton[] btnItems = new JButton[4];
 
+    private JButton btnGuardar;
+    private JButton btnCargar;
+
+    private String modoJuego;
+
     public PoobkemonGUI(Entrenador entrenador1, Entrenador entrenador2, String modo) {
         setTitle("POOBkemon - Combate");
         setSize(1000, 700);
@@ -56,9 +68,25 @@ public class PoobkemonGUI extends JFrame {
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
         this.batalla = new Batalla(entrenador1, entrenador2);
+        this.modoJuego = modo;
+
+        // Ensure player 1 always goes first
+        if (batalla.getTurnoActual() != entrenador1) {
+        batalla.cambiarTurno();
+    }
         initGUI();
         actualizarInterfaz();
-
+        
+    // Añadir mensaje informativo para el modo supervivencia
+    if ("Supervivencia".equals(modoJuego)) {
+        areaLog.setText(""); // Limpiar log anterior
+        areaLog.append("¡Bienvenido al MODO SUPERVIVENCIA!\n");
+        areaLog.append("--------------------------------\n");
+        areaLog.append("• Cada entrenador recibe 6 Pokémon aleatorios al nivel 100\n");
+        areaLog.append("• No hay ítems disponibles\n");
+        areaLog.append("• ¡Solo uno de ustedes saldrá victorioso!\n\n");
+        areaLog.append("¡Inicia la batalla!\n");
+    }
         // Listener para redimensionar
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -90,11 +118,11 @@ public class PoobkemonGUI extends JFrame {
 
     private void initGUI() {
         panelPrincipal = new JPanel(new BorderLayout());
-
+    
         // Panel superior: Pokémon del rival (ahora con imagen)
         panelPokemonRival = new JPanel(new BorderLayout());
         panelPokemonRival.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+    
         JPanel panelInfoRival = new JPanel();
         panelInfoRival.setLayout(new BoxLayout(panelInfoRival, BoxLayout.Y_AXIS));
         
@@ -112,17 +140,17 @@ public class PoobkemonGUI extends JFrame {
         
         panelPokemonRival.add(panelInfoRival, BorderLayout.WEST);
         panelPokemonRival.add(lblImagenPokemonRival, BorderLayout.CENTER);
-
+    
         // Panel central: área de mensajes
         areaLog = new JTextArea(5, 40);
         areaLog.setEditable(false);
         JScrollPane scrollLog = new JScrollPane(areaLog);
         areaLog.append("¡Inicia la batalla!\n");
-
+    
         // Panel inferior: Pokémon del jugador (ahora con imagen)
         panelPokemonJugador = new JPanel(new BorderLayout());
         panelPokemonJugador.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
+    
         JPanel panelInfoJugador = new JPanel();
         panelInfoJugador.setLayout(new BoxLayout(panelInfoJugador, BoxLayout.Y_AXIS));
         
@@ -140,14 +168,14 @@ public class PoobkemonGUI extends JFrame {
         
         panelPokemonJugador.add(panelInfoJugador, BorderLayout.WEST);
         panelPokemonJugador.add(lblImagenPokemonJugador, BorderLayout.CENTER);
-
+    
         // Controles: movimientos, cambio de pokémon, items
         panelControles = new JPanel(new CardLayout());
-
+    
         // Panel de movimientos
         panelMovimientos = new JPanel(new GridLayout(2, 2, 10, 10));
         panelMovimientos.setBorder(BorderFactory.createTitledBorder("Movimientos"));
-
+    
         for (int i = 0; i < btnMovimientos.length; i++) {
             final int index = i;
             btnMovimientos[i] = new JButton("Movimiento " + (i + 1));
@@ -158,11 +186,11 @@ public class PoobkemonGUI extends JFrame {
             });
             panelMovimientos.add(btnMovimientos[i]);
         }
-
+    
         // Panel de cambio de Pokémon
         panelPokemones = new JPanel(new GridLayout(3, 2, 10, 10));
         panelPokemones.setBorder(BorderFactory.createTitledBorder("Cambiar Pokémon"));
-
+    
         for (int i = 0; i < btnPokemones.length; i++) {
             final int index = i;
             btnPokemones[i] = new JButton("Pokémon " + (i + 1));
@@ -173,11 +201,11 @@ public class PoobkemonGUI extends JFrame {
             });
             panelPokemones.add(btnPokemones[i]); // Asegurarse de agregar al panel
         }
-
+    
         // Panel de items
         panelItems = new JPanel(new GridLayout(2, 2, 10, 10));
         panelItems.setBorder(BorderFactory.createTitledBorder("Usar Item"));
-
+    
         for (int i = 0; i < btnItems.length; i++) {
             final int index = i;
             btnItems[i] = new JButton("Item " + (i + 1));
@@ -188,48 +216,66 @@ public class PoobkemonGUI extends JFrame {
             });
             panelItems.add(btnItems[i]);
         }
-
+    
         // Botones de navegación entre paneles de control
         JPanel panelNavegacion = new JPanel(new GridLayout(1, 3));
-
+    
         JButton btnVerMovimientos = new JButton("Movimientos");
         btnVerMovimientos.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "movimientos");
         });
-
+    
         JButton btnVerPokemones = new JButton("Pokémon");
         btnVerPokemones.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "pokemones");
         });
-
+    
         JButton btnVerItems = new JButton("Items");
         btnVerItems.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "items");
         });
-
+    
         panelNavegacion.add(btnVerMovimientos);
         panelNavegacion.add(btnVerPokemones);
         panelNavegacion.add(btnVerItems);
-
+    
+        // Añadir paneles de botones al panel de controles
         panelControles.add(panelMovimientos, "movimientos");
         panelControles.add(panelPokemones, "pokemones");
         panelControles.add(panelItems, "items");
-
+    
+        // NUEVO: Panel para botones de guardar y cargar partida
+        JPanel panelAcciones = new JPanel(new GridLayout(1, 2, 10, 0));
+        
+        btnGuardar = new JButton("Guardar Partida");
+        btnGuardar.addActionListener(e -> guardarPartida());
+        panelAcciones.add(btnGuardar);
+        
+        btnCargar = new JButton("Cargar Partida");
+        btnCargar.addActionListener(e -> cargarPartida());
+        panelAcciones.add(btnCargar);
+    
+        // Combinar paneles de navegación y acciones
+        JPanel panelBotones = new JPanel(new BorderLayout());
+        panelBotones.add(panelNavegacion, BorderLayout.NORTH);
+        panelBotones.add(panelAcciones, BorderLayout.SOUTH);
+    
+        // Panel inferior combinado
         JPanel panelInferior = new JPanel(new BorderLayout());
         panelInferior.add(panelPokemonJugador, BorderLayout.NORTH);
         panelInferior.add(panelControles, BorderLayout.CENTER);
-        panelInferior.add(panelNavegacion, BorderLayout.SOUTH);
-
+        panelInferior.add(panelBotones, BorderLayout.SOUTH);  // Ahora contiene navegación y acciones
+    
         // Ensamblar todo
         panelPrincipal.add(panelPokemonRival, BorderLayout.NORTH);
         panelPrincipal.add(scrollLog, BorderLayout.CENTER);
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
-
+    
         add(panelPrincipal);
-
+    
         // Mostrar primero la pestaña de movimientos
         CardLayout cl = (CardLayout) panelControles.getLayout();
         cl.show(panelControles, "movimientos");
@@ -270,10 +316,7 @@ public class PoobkemonGUI extends JFrame {
 
     private void realizarMovimiento(int index) {
         try {
-            if (batalla.getTurnoActual() != entrenador1) {
-                areaLog.append("No es tu turno\n");
-                return;
-            }
+            Entrenador turnoActual = batalla.getTurnoActual();
             
             String resultado = batalla.ejecutarMovimiento(index);
             areaLog.append(resultado + "\n");
@@ -285,10 +328,7 @@ public class PoobkemonGUI extends JFrame {
                 return;
             }
             
-            // El método ejecutarMovimiento ya cambia el turno internamente, no lo repitamos aquí
-            // batalla.cambiarTurno();
-            
-            // Si es el turno de la IA, ejecutar automáticamente
+            // Si es el turno de una IA, ejecutar automáticamente
             if (!batalla.getTurnoActual().esHumano()) {
                 ejecutarTurnoIA();
             }
@@ -335,15 +375,13 @@ public class PoobkemonGUI extends JFrame {
         }
     }
     
-        private void cambiarPokemon(int index) {
+    private void cambiarPokemon(int index) {
         try {
-            if (batalla.getTurnoActual() != entrenador1) {
-                areaLog.append("No es tu turno\n");
-                return;
-            }
+            Entrenador turnoActual = batalla.getTurnoActual();
             
-            entrenador1.cambiarPokemon(index);
-            areaLog.append(entrenador1.getNombre() + " cambió a " + entrenador1.getActivo().getNombre() + "\n");
+            // Cambiar el Pokémon del entrenador actual
+            turnoActual.cambiarPokemon(index);
+            areaLog.append(turnoActual.getNombre() + " cambió a " + turnoActual.getActivo().getNombre() + "\n");
             
             batalla.cambiarTurno(); // Cambiar turno después de la acción
             
@@ -360,20 +398,18 @@ public class PoobkemonGUI extends JFrame {
     
     private void usarItem(int index) {
         try {
-            if (batalla.getTurnoActual() != entrenador1) {
-                areaLog.append("No es tu turno\n");
-                return;
-            }
+            Entrenador turnoActual = batalla.getTurnoActual();
+            List<Item> items = turnoActual.getItems();
             
-            if (index < entrenador1.getItems().size()) {
-                entrenador1.usarItem(index, entrenador1.getActivo());
-                Item item = entrenador1.getItems().get(index);
-                areaLog.append(entrenador1.getNombre() + " usó " + item.getNombre() + 
-                              " en " + entrenador1.getActivo().getNombre() + "\n");
+            if (index < items.size()) {
+                turnoActual.usarItem(index, turnoActual.getActivo());
+                Item item = items.get(index);
+                areaLog.append(turnoActual.getNombre() + " usó " + item.getNombre() + 
+                              " en " + turnoActual.getActivo().getNombre() + "\n");
                 
                 batalla.cambiarTurno(); // Cambiar turno después de la acción
                 
-                // Si ahora es el turno de la IA, ejecutar automáticamente 
+                // Si ahora es el turno de la IA, ejecutar automáticamente
                 if (!batalla.getTurnoActual().esHumano()) {
                     ejecutarTurnoIA();
                 }
@@ -398,64 +434,99 @@ public class PoobkemonGUI extends JFrame {
         lblPSRival.setText("PS: " + pokemonRival.getPsActual() + "/" + pokemonRival.getPsMaximo());
         cargarImagenPokemon(lblImagenPokemonRival, pokemonRival.getNombre());
         
-        // Indicador visual de turno más prominente
-        boolean esTurnoJugador = batalla.getTurnoActual() == entrenador1;
+        // Determinamos de quién es el turno actual
+        Entrenador turnoActual = batalla.getTurnoActual();
+        boolean esTurnoJugador1 = (turnoActual == entrenador1);
         
-        if (esTurnoJugador) {
+        // Indicador visual de turno más prominente
+        if (esTurnoJugador1) {
             lblImagenPokemonJugador.setBorder(BorderFactory.createLineBorder(Color.GREEN, 5));
             lblImagenPokemonRival.setBorder(null);
             // Solo agrega el mensaje si cambió de turno
-            if (!areaLog.getText().endsWith("► Es tu turno\n")) {
-                areaLog.append("► Es tu turno\n");
+            if (!areaLog.getText().endsWith("► Es turno de " + entrenador1.getNombre() + "\n")) {
+                areaLog.append("► Es turno de " + entrenador1.getNombre() + "\n");
             }
         } else {
             lblImagenPokemonRival.setBorder(BorderFactory.createLineBorder(Color.RED, 5));
             lblImagenPokemonJugador.setBorder(null);
             // Solo agrega el mensaje si cambió de turno
-            if (!areaLog.getText().endsWith("► Turno del rival\n")) {
-                areaLog.append("► Turno del rival\n");
+            if (!areaLog.getText().endsWith("► Es turno de " + entrenador2.getNombre() + "\n")) {
+                areaLog.append("► Es turno de " + entrenador2.getNombre() + "\n");
             }
         }
         
-        // Actualizar botones de movimientos - SIEMPRE HABILITADOS SI PUEDEN USARSE
-        List<Movimiento> movimientosJugador = pokemonJugador.getMovimientos();
+        // Si es turno del jugador 2, mostrar sus movimientos/pokemones/items
+        Pokemon pokemonActivo;
+        List<Pokemon> equipoActivo;
+        List<Item> itemsActivos;
+        Entrenador entrenadorActivo;
+        
+        if (esTurnoJugador1) {
+            pokemonActivo = entrenador1.getActivo();
+            equipoActivo = entrenador1.getPokemones();
+            itemsActivos = entrenador1.getItems();
+            entrenadorActivo = entrenador1;
+        } else {
+            pokemonActivo = entrenador2.getActivo();
+            equipoActivo = entrenador2.getPokemones();
+            itemsActivos = entrenador2.getItems();
+            entrenadorActivo = entrenador2;
+        }
+        
+        // Actualizar botones de movimientos
+        List<Movimiento> movimientosActivos = pokemonActivo.getMovimientos();
         for (int i = 0; i < btnMovimientos.length; i++) {
-            if (i < movimientosJugador.size()) {
-                Movimiento m = movimientosJugador.get(i);
+            if (i < movimientosActivos.size()) {
+                Movimiento m = movimientosActivos.get(i);
                 btnMovimientos[i].setText(m.getNombre() + " (" + m.getPpActual() + "/" + m.getPpMaximo() + ")");
-                btnMovimientos[i].setEnabled(m.puedeUsarse()); // Quitar la condición de turno
+                btnMovimientos[i].setEnabled(m.puedeUsarse());
             } else {
                 btnMovimientos[i].setText("-");
                 btnMovimientos[i].setEnabled(false);
             }
         }
         
-        // Actualizar botones de Pokémon - SIEMPRE HABILITADOS SI NO ESTÁN DEBILITADOS
-        List<Pokemon> equipoJugador = entrenador1.getPokemones();
+        // Actualizar botones de Pokémon
         for (int i = 0; i < btnPokemones.length; i++) {
-            if (i < equipoJugador.size()) {
-                Pokemon p = equipoJugador.get(i);
+            if (i < equipoActivo.size()) {
+                Pokemon p = equipoActivo.get(i);
                 btnPokemones[i].setText(p.getNombre() + " (" + p.getPsActual() + "/" + p.getPsMaximo() + ")");
-                btnPokemones[i].setEnabled(i != entrenador1.getActivoIndex() && !p.estaDebilitado()); // Quitar la condición de turno
+                btnPokemones[i].setEnabled(i != entrenadorActivo.getActivoIndex() && !p.estaDebilitado());
             } else {
                 btnPokemones[i].setText("-");
                 btnPokemones[i].setEnabled(false);
             }
         }
         
-        // Actualizar botones de items - SIEMPRE HABILITADOS SI ESTÁN DISPONIBLES
-        List<Item> itemsJugador = entrenador1.getItems();
+        // Actualizar botones de items
         for (int i = 0; i < btnItems.length; i++) {
-            if (i < itemsJugador.size()) {
-                Item item = itemsJugador.get(i);
+            if (i < itemsActivos.size()) {
+                Item item = itemsActivos.get(i);
                 btnItems[i].setText(item.getNombre() + " x" + item.getCantidad());
-                btnItems[i].setEnabled(item.disponible()); // Quitar la condición de turno
+                btnItems[i].setEnabled(item.disponible());
             } else {
                 btnItems[i].setText("-");
                 btnItems[i].setEnabled(false);
             }
         }
+
+        boolean esModoSupervivencia = "Supervivencia".equals(modoJuego);
         
+        // Actualizar botones de items - deshabilitar en modo supervivencia
+        for (int i = 0; i < btnItems.length; i++) {
+            if (esModoSupervivencia) {
+                // En modo supervivencia, no hay ítems
+                btnItems[i].setText("Sin ítems en modo supervivencia");
+                btnItems[i].setEnabled(false);
+            } else if (i < itemsActivos.size()) {
+                Item item = itemsActivos.get(i);
+                btnItems[i].setText(item.getNombre() + " x" + item.getCantidad());
+                btnItems[i].setEnabled(item.disponible());
+            } else {
+                btnItems[i].setText("-");
+                btnItems[i].setEnabled(false);
+            }
+        }
         // Hacer scroll hacia abajo en el área de logs
         areaLog.setCaretPosition(areaLog.getDocument().getLength());
     }
@@ -485,4 +556,85 @@ public class PoobkemonGUI extends JFrame {
             menu.setVisible(true);
         });
     }
+    // Método para guardar partida
+private void guardarPartida() {
+    try {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar Partida");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Partidas POOBkemon (*.pkm)", "pkm"));
+        
+        int userSelection = fileChooser.showSaveDialog(this);
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            
+            // Asegurar que el archivo tenga la extensión .pkm
+            if (!fileToSave.getName().toLowerCase().endsWith(".pkm")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".pkm");
+            }
+            
+            // Crear objeto GameState con el estado actual del juego
+            GameState gameState = new GameState(
+                entrenador1, 
+                entrenador2, 
+                batalla.getTurnoActual() == entrenador1, modoJuego
+                 // Puedes guardar el modo de juego como un campo si tienes diferentes modos
+            );
+            
+            // Guardar en archivo
+            try (ObjectOutputStream out = new ObjectOutputStream(
+                    new FileOutputStream(fileToSave))) {
+                out.writeObject(gameState);
+            }
+            
+            areaLog.append("Partida guardada con éxito en: " + fileToSave.getName() + "\n");
+        }
+    } catch (IOException ex) {
+        areaLog.append("Error al guardar la partida: " + ex.getMessage() + "\n");
+        JOptionPane.showMessageDialog(this, 
+            "No se pudo guardar la partida: " + ex.getMessage(), 
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+// Método para cargar partida
+private void cargarPartida() {
+    try {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Cargar Partida");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Partidas POOBkemon (*.pkm)", "pkm"));
+        
+        int userSelection = fileChooser.showOpenDialog(this);
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToLoad = fileChooser.getSelectedFile();
+            
+            // Cargar desde archivo
+            try (ObjectInputStream in = new ObjectInputStream(
+                    new FileInputStream(fileToLoad))) {
+                GameState gameState = (GameState) in.readObject();
+                
+                // Restaurar estado del juego
+                this.entrenador1 = gameState.getEntrenador1();
+                this.entrenador2 = gameState.getEntrenador2();
+                this.batalla = new Batalla(entrenador1, entrenador2);
+                
+                // Establecer el turno correcto
+                if (gameState.isTurnoEntrenador1() != (batalla.getTurnoActual() == entrenador1)) {
+                    batalla.cambiarTurno();
+                }
+                
+                actualizarInterfaz();
+                areaLog.setText(""); // Limpiar log
+                areaLog.append("Partida cargada con éxito desde: " + fileToLoad.getName() + "\n");
+                areaLog.append("¡Continúa la batalla!\n");
+            }
+        }
+    } catch (IOException | ClassNotFoundException ex) {
+        areaLog.append("Error al cargar la partida: " + ex.getMessage() + "\n");
+        JOptionPane.showMessageDialog(this, 
+            "No se pudo cargar la partida: " + ex.getMessage(), 
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
 }

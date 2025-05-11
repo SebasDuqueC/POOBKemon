@@ -2,8 +2,10 @@ package domain;
 import exceptions.PoobkemonException;
 
 import java.util.List;
+import java.io.Serializable;
 
-public class Pokemon {
+public class Pokemon  implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Object tipo = null;
     private String nombre;
     private Tipo tipoPrimario;

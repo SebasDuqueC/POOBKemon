@@ -1,13 +1,18 @@
 package presentation;
 
+import domain.GameState;
+import domain.Entrenador;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
+import java.io.*;
+import java.util.Date;
 
 public class PoobkemonMainMenu extends JFrame {
 
@@ -95,12 +100,40 @@ public class PoobkemonMainMenu extends JFrame {
             }
         });
 
+        // En el ActionListener del botón cargarPartida:
         btnCargarPartida.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(PoobkemonMainMenu.this,
-                        "Funcionalidad de carga no implementada aún",
-                        "Cargar Partida",
-                        JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Cargar Partida");
+                    fileChooser.setFileFilter(new FileNameExtensionFilter("Partidas POOBkemon (*.pkm)", "pkm"));
+                    
+                    int userSelection = fileChooser.showOpenDialog(PoobkemonMainMenu.this);
+                    
+                    if (userSelection == JFileChooser.APPROVE_OPTION) {
+                        File fileToLoad = fileChooser.getSelectedFile();
+                        
+                        // Cargar desde archivo
+                        try (ObjectInputStream in = new ObjectInputStream(
+                                new FileInputStream(fileToLoad))) {
+                            
+                            GameState gameState = (GameState) in.readObject();
+                            
+                            // Crear GUI con el estado cargado
+                            PoobkemonGUI gui = new PoobkemonGUI(
+                                gameState.getEntrenador1(),
+                                gameState.getEntrenador2(),
+                                gameState.getModoJuego()
+                            );
+                            gui.setVisible(true);
+                            dispose(); // Cerrar este menú
+                        }
+                    }
+                } catch (IOException | ClassNotFoundException ex) {
+                    JOptionPane.showMessageDialog(PoobkemonMainMenu.this,
+                        "No se pudo cargar la partida: " + ex.getMessage(),
+                        "Error al cargar", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
