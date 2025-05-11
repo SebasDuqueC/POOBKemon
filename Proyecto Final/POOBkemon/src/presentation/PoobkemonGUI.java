@@ -57,7 +57,7 @@ public class PoobkemonGUI extends JFrame {
     private JButton btnCargar;
 
     private String modoJuego;
-
+    // Nueva variable para el modo de juego
     public PoobkemonGUI(Entrenador entrenador1, Entrenador entrenador2, String modo) {
         setTitle("POOBkemon - Combate");
         setSize(1000, 700);
@@ -76,7 +76,7 @@ public class PoobkemonGUI extends JFrame {
     }
         initGUI();
         actualizarInterfaz();
-        
+
     // Añadir mensaje informativo para el modo supervivencia
     if ("Supervivencia".equals(modoJuego)) {
         areaLog.setText(""); // Limpiar log anterior
