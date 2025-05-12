@@ -105,4 +105,49 @@ public class PokemonLoader {
         }
         return nombres;
     }
+
+    public static Pokemon crearPokemonConMovimientos(String nombre, List<Movimiento> movimientosPersonalizados) {
+        // Buscar el pokemon base por nombre
+        Pokemon pokemon = buscarPokemonPorNombre(nombre);
+        
+        if (pokemon == null) {
+            System.err.println("No se encontró el Pokémon: " + nombre);
+            return null;
+        }
+        
+        // Limpiar los movimientos actuales y agregar los nuevos
+        pokemon.getMovimientos().clear();
+        
+        // Verificar que no tenemos más de 4 movimientos
+        int movimientosAñadir = Math.min(movimientosPersonalizados.size(), 4);
+        
+        for (int i = 0; i < movimientosAñadir; i++) {
+            pokemon.getMovimientos().add(movimientosPersonalizados.get(i));
+        }
+        
+        // Si no tenemos 4 movimientos, completar con movimientos genéricos del tipo
+        if (movimientosAñadir < 4) {
+            Tipo tipoPokemon = Tipo.valueOf(pokemon.getClass().getSimpleName().toUpperCase());
+            Movimiento[] movimientosAdicionales = MovimientoFactory.obtenerCuatroMovimientos(tipoPokemon);
+            
+            for (int i = movimientosAñadir; i < 4; i++) {
+                // Evitar duplicados verificando si el movimiento ya existe
+                boolean movimientoExistente = false;
+                for (Movimiento m : pokemon.getMovimientos()) {
+                    if (m.getNombre().equals(movimientosAdicionales[i % movimientosAdicionales.length].getNombre())) {
+                        movimientoExistente = true;
+                        break;
+                    }
+                }
+                
+                if (!movimientoExistente) {
+                    pokemon.getMovimientos().add(movimientosAdicionales[i % movimientosAdicionales.length]);
+                    if (pokemon.getMovimientos().size() >= 4) break;
+                }
+            }
+        }
+        
+        return pokemon;
+    }
+    
 }

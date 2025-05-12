@@ -2,13 +2,16 @@ package presentation;
 
 import javax.swing.*;
 
+import domain.Movimiento;
 import domain.Pokemon;
 import domain.PokemonLoader;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class PoobkemonSelectionMenu extends JPanel {
@@ -18,6 +21,7 @@ public class PoobkemonSelectionMenu extends JPanel {
     private JPanel panelPokemones;
     private JButton btnConfirmar;
     private int maxSeleccion;
+    private Map<String, List<Movimiento>> movimientosPorPokemon = new HashMap<>();
 
 
         public PoobkemonSelectionMenu(String nombreEntrenador, List<String> pokemonesDisponibles, ActionListener confirmarListener) {
@@ -432,13 +436,31 @@ public class PoobkemonSelectionMenu extends JPanel {
     }
 
     public void manejarSeleccionPokemon(String pokemon, JButton btnPokemon) {
+        // Si ya estaba seleccionado, simplemente lo deseleccionamos
         if (pokemonesSeleccionados.contains(pokemon)) {
             pokemonesSeleccionados.remove(pokemon);
             btnPokemon.setBackground(null); // Restaurar color original
+            // También eliminar los movimientos asociados
+            movimientosPorPokemon.remove(pokemon);
         } else {
+            // Si no está seleccionado y hay espacio, mostramos el selector de movimientos
             if (pokemonesSeleccionados.size() < maxSeleccion) {
-                pokemonesSeleccionados.add(pokemon);
-                btnPokemon.setBackground(Color.GREEN); // Indicar selección
+                // Obtener el JFrame padre
+                JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
+                
+                // Mostrar el selector de movimientos
+                PokemonMoveSelector selector = new PokemonMoveSelector(parent, pokemon);
+                selector.setVisible(true);
+                
+                // Si el usuario confirmó la selección de movimientos
+                if (selector.isConfirmed()) {
+                    // Añadir el Pokémon a la lista de seleccionados
+                    pokemonesSeleccionados.add(pokemon);
+                    btnPokemon.setBackground(Color.GREEN); // Indicar selección
+                    
+                    // Guardar los movimientos seleccionados para este Pokémon
+                    movimientosPorPokemon.put(pokemon, selector.getMovimientosSeleccionados());
+                }
             } else {
                 JOptionPane.showMessageDialog(this,
                         "No puedes seleccionar más de " + maxSeleccion + " Pokémon.",
@@ -456,17 +478,21 @@ public class PoobkemonSelectionMenu extends JPanel {
     // Añadir este método para convertir nombres a objetos Pokémon
     public List<Pokemon> getPokemonesComoObjetos() {
         List<Pokemon> pokemones = new ArrayList<>();
-        List<Pokemon> todosLosPokemones = PokemonLoader.obtenerPokemonesDisponibles();
         
         for (String nombre : pokemonesSeleccionados) {
-            for (Pokemon p : todosLosPokemones) {
-                if (p.getNombre().equals(nombre)) {
-                    pokemones.add(p);
-                    break;
-                }
+            List<Movimiento> movimientosPersonalizados = movimientosPorPokemon.get(nombre);
+            // Crear el pokémon con los movimientos seleccionados
+            Pokemon pokemon = PokemonLoader.crearPokemonConMovimientos(nombre, movimientosPersonalizados);
+            if (pokemon != null) {
+                pokemones.add(pokemon);
             }
         }
         
         return pokemones;
-}
+    }
+    // Añadir un método getter para recuperar los movimientos:
+    public List<Movimiento> getMovimientosPorPokemon(String pokemon) {
+        return movimientosPorPokemon.getOrDefault(pokemon, null);
+    }  
+
 }
