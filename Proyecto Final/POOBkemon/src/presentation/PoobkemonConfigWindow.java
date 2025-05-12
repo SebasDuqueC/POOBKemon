@@ -217,7 +217,11 @@ public class PoobkemonConfigWindow extends JFrame {
         // MODO NORMAL - Selección manual de Pokémon
         
         // Lista de Pokémon disponibles
-        List<String> pokemonesDisponibles = PokemonFactory.obtenerNombresDePokemones();
+        List<Pokemon> todosLosPokemones = PokemonLoader.obtenerPokemonesDisponibles();
+        List<String> pokemonesDisponibles = new ArrayList<>();
+        for (Pokemon p : todosLosPokemones) {
+            pokemonesDisponibles.add(p.getNombre());
+        }
     
         // Selección para el Entrenador 1
         seleccionEntrenador1 = new PoobkemonSelectionMenu(jugador1, pokemonesDisponibles, e1 -> {
@@ -235,16 +239,8 @@ public class PoobkemonConfigWindow extends JFrame {
                     return;
                 }
     
-                // Crear equipos de Pokémon basados en las selecciones
-                List<Pokemon> equipoJugador = new ArrayList<>();
-                for (String nombrePokemon : pokemonesEntrenador1) {
-                    equipoJugador.add(PokemonFactory.crearPokemonPorNombre(nombrePokemon));
-                }
-    
-                List<Pokemon> equipoRival = new ArrayList<>();
-                for (String nombrePokemon : pokemonesEntrenador2) {
-                    equipoRival.add(PokemonFactory.crearPokemonPorNombre(nombrePokemon));
-                }
+                List<Pokemon> equipoJugador = seleccionEntrenador1.getPokemonesComoObjetos();
+                List<Pokemon> equipoRival = seleccionEntrenador2.getPokemonesComoObjetos();
     
                 Entrenador entrenador1;
                 Entrenador entrenador2;
@@ -421,4 +417,6 @@ public class PoobkemonConfigWindow extends JFrame {
             }
         }
     }
+
+    
 }

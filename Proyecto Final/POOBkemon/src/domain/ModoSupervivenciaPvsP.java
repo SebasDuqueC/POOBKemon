@@ -29,27 +29,26 @@ public class ModoSupervivenciaPvsP {
     }
 
     private List<Pokemon> generarPokemonesAleatorios(int cantidad) {
-        List<Pokemon> pokemones = new ArrayList<>();
-        List<String> nombresPokemon = PokemonFactory.obtenerNombresDePokemones();
+        List<Pokemon> todosLosPokemones = PokemonLoader.obtenerPokemonesDisponibles();
+        List<Pokemon> pokemonesSeleccionados = new ArrayList<>();
         
-        // Seleccionar 6 Pokémones aleatorios sin repetir
-        for (int i = 0; i < cantidad; i++) {
-            // Si ya usamos todos los nombres disponibles, volvemos a empezar
-            if (nombresPokemon.isEmpty()) {
-                nombresPokemon = PokemonFactory.obtenerNombresDePokemones();
+        // Verificar si hay suficientes Pokémon
+        if (todosLosPokemones.size() < cantidad) {
+            // Si no hay suficientes, duplicamos la lista hasta tener suficientes
+            List<Pokemon> pokemonesOriginales = new ArrayList<>(todosLosPokemones);
+            while (todosLosPokemones.size() < cantidad) {
+                todosLosPokemones.addAll(pokemonesOriginales);
             }
-            
-            // Seleccionar un pokémon aleatorio de la lista
-            int indiceAleatorio = random.nextInt(nombresPokemon.size());
-            String nombrePokemon = nombresPokemon.get(indiceAleatorio);
-            nombresPokemon.remove(indiceAleatorio);
-            
-            // Crear el pokémon y añadirlo a la lista
-            Pokemon pokemon = PokemonFactory.crearPokemonPorNombre(nombrePokemon);
-            pokemones.add(pokemon);
         }
         
-        return pokemones;
+        // Seleccionar Pokémon aleatoriamente
+        for (int i = 0; i < cantidad; i++) {
+            int indiceAleatorio = random.nextInt(todosLosPokemones.size());
+            pokemonesSeleccionados.add(todosLosPokemones.get(indiceAleatorio));
+            todosLosPokemones.remove(indiceAleatorio);
+        }
+        
+        return pokemonesSeleccionados;
     }
 
     public void iniciarBatalla() throws PoobkemonException {

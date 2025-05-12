@@ -1,6 +1,10 @@
 package presentation;
 
 import javax.swing.*;
+
+import domain.Pokemon;
+import domain.PokemonLoader;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -448,4 +452,21 @@ public class PoobkemonSelectionMenu extends JPanel {
     public List<String> getPokemonesSeleccionados() {
         return pokemonesSeleccionados;
     }
+
+    // Añadir este método para convertir nombres a objetos Pokémon
+    public List<Pokemon> getPokemonesComoObjetos() {
+        List<Pokemon> pokemones = new ArrayList<>();
+        List<Pokemon> todosLosPokemones = PokemonLoader.obtenerPokemonesDisponibles();
+        
+        for (String nombre : pokemonesSeleccionados) {
+            for (Pokemon p : todosLosPokemones) {
+                if (p.getNombre().equals(nombre)) {
+                    pokemones.add(p);
+                    break;
+                }
+            }
+        }
+        
+        return pokemones;
+}
 }
