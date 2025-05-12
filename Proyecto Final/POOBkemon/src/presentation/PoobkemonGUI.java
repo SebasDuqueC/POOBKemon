@@ -56,7 +56,7 @@ public class PoobkemonGUI extends JFrame {
     private JButton btnGuardar;
     private JButton btnCargar;
 
-    private String modoJuego;
+    public String modoJuego;
     // Nueva variable para el modo de juego
     public PoobkemonGUI(Entrenador entrenador1, Entrenador entrenador2, String modo) {
         setTitle("POOBkemon - Combate");
@@ -118,64 +118,64 @@ public class PoobkemonGUI extends JFrame {
 
     private void initGUI() {
         panelPrincipal = new JPanel(new BorderLayout());
-    
+
         // Panel superior: Pokémon del rival (ahora con imagen)
         panelPokemonRival = new JPanel(new BorderLayout());
         panelPokemonRival.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-    
+
         JPanel panelInfoRival = new JPanel();
         panelInfoRival.setLayout(new BoxLayout(panelInfoRival, BoxLayout.Y_AXIS));
-        
+
         lblNombreRival = new JLabel("Pokémon Rival");
         lblNombreRival.setFont(new Font("Arial", Font.BOLD, 16));
         lblPSRival = new JLabel("PS: 100/100");
-        
+
         panelInfoRival.add(lblNombreRival);
         panelInfoRival.add(lblPSRival);
-        
+
         // Imagen del Pokémon rival
         lblImagenPokemonRival = new JLabel();
         lblImagenPokemonRival.setPreferredSize(new Dimension(200, 200));
         lblImagenPokemonRival.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         panelPokemonRival.add(panelInfoRival, BorderLayout.WEST);
         panelPokemonRival.add(lblImagenPokemonRival, BorderLayout.CENTER);
-    
+
         // Panel central: área de mensajes
         areaLog = new JTextArea(5, 40);
         areaLog.setEditable(false);
         JScrollPane scrollLog = new JScrollPane(areaLog);
         areaLog.append("¡Inicia la batalla!\n");
-    
+
         // Panel inferior: Pokémon del jugador (ahora con imagen)
         panelPokemonJugador = new JPanel(new BorderLayout());
         panelPokemonJugador.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-    
+
         JPanel panelInfoJugador = new JPanel();
         panelInfoJugador.setLayout(new BoxLayout(panelInfoJugador, BoxLayout.Y_AXIS));
-        
+
         lblNombreJugador = new JLabel("Tu Pokémon");
         lblNombreJugador.setFont(new Font("Arial", Font.BOLD, 16));
         lblPSJugador = new JLabel("PS: 100/100");
-        
+
         panelInfoJugador.add(lblNombreJugador);
         panelInfoJugador.add(lblPSJugador);
-        
+
         // Imagen del Pokémon del jugador
         lblImagenPokemonJugador = new JLabel();
         lblImagenPokemonJugador.setPreferredSize(new Dimension(200, 200));
         lblImagenPokemonJugador.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         panelPokemonJugador.add(panelInfoJugador, BorderLayout.WEST);
         panelPokemonJugador.add(lblImagenPokemonJugador, BorderLayout.CENTER);
-    
+
         // Controles: movimientos, cambio de pokémon, items
         panelControles = new JPanel(new CardLayout());
-    
+
         // Panel de movimientos
         panelMovimientos = new JPanel(new GridLayout(2, 2, 10, 10));
         panelMovimientos.setBorder(BorderFactory.createTitledBorder("Movimientos"));
-    
+
         for (int i = 0; i < btnMovimientos.length; i++) {
             final int index = i;
             btnMovimientos[i] = new JButton("Movimiento " + (i + 1));
@@ -186,11 +186,11 @@ public class PoobkemonGUI extends JFrame {
             });
             panelMovimientos.add(btnMovimientos[i]);
         }
-    
+
         // Panel de cambio de Pokémon
         panelPokemones = new JPanel(new GridLayout(3, 2, 10, 10));
         panelPokemones.setBorder(BorderFactory.createTitledBorder("Cambiar Pokémon"));
-    
+
         for (int i = 0; i < btnPokemones.length; i++) {
             final int index = i;
             btnPokemones[i] = new JButton("Pokémon " + (i + 1));
@@ -201,11 +201,11 @@ public class PoobkemonGUI extends JFrame {
             });
             panelPokemones.add(btnPokemones[i]); // Asegurarse de agregar al panel
         }
-    
+
         // Panel de items
         panelItems = new JPanel(new GridLayout(2, 2, 10, 10));
         panelItems.setBorder(BorderFactory.createTitledBorder("Usar Item"));
-    
+
         for (int i = 0; i < btnItems.length; i++) {
             final int index = i;
             btnItems[i] = new JButton("Item " + (i + 1));
@@ -216,102 +216,95 @@ public class PoobkemonGUI extends JFrame {
             });
             panelItems.add(btnItems[i]);
         }
-    
+
         // Botones de navegación entre paneles de control
         JPanel panelNavegacion = new JPanel(new GridLayout(1, 3));
-    
+
         JButton btnVerMovimientos = new JButton("Movimientos");
         btnVerMovimientos.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "movimientos");
         });
-    
+
         JButton btnVerPokemones = new JButton("Pokémon");
         btnVerPokemones.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "pokemones");
         });
-    
+
         JButton btnVerItems = new JButton("Items");
         btnVerItems.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "items");
         });
-    
+
         panelNavegacion.add(btnVerMovimientos);
         panelNavegacion.add(btnVerPokemones);
         panelNavegacion.add(btnVerItems);
-    
+
         // Añadir paneles de botones al panel de controles
         panelControles.add(panelMovimientos, "movimientos");
         panelControles.add(panelPokemones, "pokemones");
         panelControles.add(panelItems, "items");
-    
+
         // NUEVO: Panel para botones de guardar y cargar partida
         JPanel panelAcciones = new JPanel(new GridLayout(1, 2, 10, 0));
-        
+
         btnGuardar = new JButton("Guardar Partida");
         btnGuardar.addActionListener(e -> guardarPartida());
         panelAcciones.add(btnGuardar);
-        
+
         btnCargar = new JButton("Cargar Partida");
         btnCargar.addActionListener(e -> cargarPartida());
         panelAcciones.add(btnCargar);
-    
+
         // Combinar paneles de navegación y acciones
         JPanel panelBotones = new JPanel(new BorderLayout());
         panelBotones.add(panelNavegacion, BorderLayout.NORTH);
         panelBotones.add(panelAcciones, BorderLayout.SOUTH);
-    
+
         // Panel inferior combinado
         JPanel panelInferior = new JPanel(new BorderLayout());
         panelInferior.add(panelPokemonJugador, BorderLayout.NORTH);
         panelInferior.add(panelControles, BorderLayout.CENTER);
         panelInferior.add(panelBotones, BorderLayout.SOUTH);  // Ahora contiene navegación y acciones
-    
+
         // Ensamblar todo
         panelPrincipal.add(panelPokemonRival, BorderLayout.NORTH);
         panelPrincipal.add(scrollLog, BorderLayout.CENTER);
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
-    
+
         add(panelPrincipal);
-    
+
         // Mostrar primero la pestaña de movimientos
         CardLayout cl = (CardLayout) panelControles.getLayout();
         cl.show(panelControles, "movimientos");
     }
 
-    // Método para cargar imágenes de los Pokémon
-    private void cargarImagenPokemon(JLabel label, String nombrePokemon) {
+    // Método para cargar y mostrar el GIF del Pokémon activo
+    private void mostrarGifPokemonActivo(JLabel label, String nombrePokemon) {
         try {
-            String nombreArchivo = nombrePokemon.toLowerCase() + ".png";
-            ImageIcon imagenPokemon = new ImageIcon(Objects.requireNonNull(
+            // Construir la ruta del archivo GIF
+            String nombreArchivo = nombrePokemon.toLowerCase() + ".gif";
+            ImageIcon gifPokemon = new ImageIcon(Objects.requireNonNull(
                     getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
-            
-            // Redimensionar si es necesario
-            Image img = imagenPokemon.getImage();
-            Image imgResized = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-            label.setIcon(new ImageIcon(imgResized));
+
+            // Establecer el GIF en el JLabel
+            label.setIcon(gifPokemon);
+            label.setText(""); // Limpiar texto si lo hubiera
         } catch (Exception e) {
-            try {
-                // Intenta cargar una imagen predeterminada si no encuentra la específica
-                String nombreArchivo = "pokemon_default.png";
-                ImageIcon defaultImage = new ImageIcon(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("out/production/POOBkemon/main/resource/simages" + nombreArchivo)));
-                
-                Image img = defaultImage.getImage();
-                Image imgResized = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
-                label.setIcon(new ImageIcon(imgResized));
-                
-                // También mostrar el nombre como texto
-                label.setText(nombrePokemon);
-                label.setHorizontalTextPosition(SwingConstants.CENTER);
-                label.setVerticalTextPosition(SwingConstants.BOTTOM);
-            } catch (Exception ex) {
-                System.err.println("No se pudo cargar la imagen predeterminada: " + ex.getMessage());
-                label.setText("[ " + nombrePokemon + " ]");
-            }
+            System.err.println("No se pudo cargar el GIF para " + nombrePokemon + ": " + e.getMessage());
+            label.setIcon(null);
+            label.setText("[ " + nombrePokemon + " ]"); // Mostrar texto si no se encuentra el GIF
         }
+    }
+
+    // Actualizar el GIF del Pokémon activo
+    private void actualizarPokemonActivo() {
+        Entrenador entrenadorActivo = batalla.getTurnoActual();
+        Pokemon pokemonActivo = entrenadorActivo.getActivo();
+        if (pokemonActivo != null) {
+            mostrarGifPokemonActivo(lblImagenPokemonJugador, pokemonActivo.getNombre());        }
     }
 
     private void realizarMovimiento(int index) {
@@ -422,17 +415,18 @@ public class PoobkemonGUI extends JFrame {
     }
     
     private void actualizarInterfaz() {
+
         // Actualizar información del Pokémon del jugador
         Pokemon pokemonJugador = entrenador1.getActivo();
         lblNombreJugador.setText(pokemonJugador.getNombre());
         lblPSJugador.setText("PS: " + pokemonJugador.getPsActual() + "/" + pokemonJugador.getPsMaximo());
-        cargarImagenPokemon(lblImagenPokemonJugador, pokemonJugador.getNombre());
+        mostrarGifPokemonActivo(lblImagenPokemonJugador, pokemonJugador.getNombre());
         
         // Actualizar información del Pokémon del rival
         Pokemon pokemonRival = entrenador2.getActivo();
         lblNombreRival.setText(pokemonRival.getNombre());
         lblPSRival.setText("PS: " + pokemonRival.getPsActual() + "/" + pokemonRival.getPsMaximo());
-        cargarImagenPokemon(lblImagenPokemonRival, pokemonRival.getNombre());
+        mostrarGifPokemonActivo(lblImagenPokemonRival, pokemonRival.getNombre());
         
         // Determinamos de quién es el turno actual
         Entrenador turnoActual = batalla.getTurnoActual();

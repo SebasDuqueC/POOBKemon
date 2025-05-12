@@ -427,7 +427,7 @@ public class PoobkemonSelectionMenu extends JPanel {
         add(btnConfirmar, BorderLayout.SOUTH);
     }
 
-    private void manejarSeleccionPokemon(String pokemon, JButton btnPokemon) {
+    public void manejarSeleccionPokemon(String pokemon, JButton btnPokemon) {
         if (pokemonesSeleccionados.contains(pokemon)) {
             pokemonesSeleccionados.remove(pokemon);
             btnPokemon.setBackground(null); // Restaurar color original
