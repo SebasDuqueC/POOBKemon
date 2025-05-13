@@ -3,6 +3,7 @@ package presentation;
 import exceptions.PoobkemonException;
 import domain.*;
 
+import presentation.ItemSelectionMenu;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
 public class PoobkemonConfigWindow extends JFrame {
 
     private JTextField txtJugador1, txtJugador2;
@@ -22,6 +24,8 @@ public class PoobkemonConfigWindow extends JFrame {
     private JComboBox<String> cbModoJuego;
     private JButton btnIniciar, btnCancelar;
     private PoobkemonSelectionMenu seleccionEntrenador1, seleccionEntrenador2;
+    private ItemSelectionMenu seleccionItems1, seleccionItems2; // Añadir aquí como campos de clase
+    
 
     public PoobkemonConfigWindow() {
         setTitle("Configuración del Juego - POOBkemon 2025");
@@ -169,7 +173,7 @@ public class PoobkemonConfigWindow extends JFrame {
         setFontToAllComponents(formPanel, customFont);
     }
 
-    private void iniciarBatalla(ActionEvent e) {
+        private void iniciarBatalla(ActionEvent e) {
         String jugador1 = txtJugador1.getText().trim();
         String jugador2 = txtJugador2.getText().trim();
         String modoJuego = (String) cbModoJuego.getSelectedItem();
@@ -214,14 +218,10 @@ public class PoobkemonConfigWindow extends JFrame {
             return; // No continuar con el resto del método
         }
         
-        // MODO NORMAL - Selección manual de Pokémon
+        // MODO NORMAL - Selección manual de Pokémon y luego Items
         
         // Lista de Pokémon disponibles
-        List<Pokemon> todosLosPokemones = PokemonLoader.obtenerPokemonesDisponibles();
-        List<String> pokemonesDisponibles = new ArrayList<>();
-        for (Pokemon p : todosLosPokemones) {
-            pokemonesDisponibles.add(p.getNombre());
-        }
+        List<String> pokemonesDisponibles = PokemonLoader.obtenerNombresDePokemones();
     
         // Selección para el Entrenador 1
         seleccionEntrenador1 = new PoobkemonSelectionMenu(jugador1, pokemonesDisponibles, e1 -> {
@@ -231,6 +231,10 @@ public class PoobkemonConfigWindow extends JFrame {
                 return;
             }
     
+            // Cerrar la ventana de selección del Entrenador 1
+            JFrame frameSeleccion1 = (JFrame) SwingUtilities.getWindowAncestor(seleccionEntrenador1);
+            frameSeleccion1.dispose();
+    
             // Selección para el Entrenador 2
             seleccionEntrenador2 = new PoobkemonSelectionMenu(jugador2, pokemonesDisponibles, e2 -> {
                 List<String> pokemonesEntrenador2 = seleccionEntrenador2.getPokemonesSeleccionados();
@@ -239,46 +243,80 @@ public class PoobkemonConfigWindow extends JFrame {
                     return;
                 }
     
-                List<Pokemon> equipoJugador = seleccionEntrenador1.getPokemonesComoObjetos();
-                List<Pokemon> equipoRival = seleccionEntrenador2.getPokemonesComoObjetos();
-    
-                Entrenador entrenador1;
-                Entrenador entrenador2;
-                try {
-                    entrenador1 = new Entrenador(jugador1, esJugador1Humano, equipoJugador, ItemFactory.crearItemsBasicos());
-                    entrenador2 = new Entrenador(jugador2, esJugador2Humano, equipoRival, ItemFactory.crearItemsBasicos());
-                } catch (PoobkemonException ex) {
-                    JOptionPane.showMessageDialog(this, "Error al crear los entrenadores: " + ex.getMessage());
-                    return;
-                }
-    
-                // Abrir la pantalla de batalla
-                PoobkemonGUI gui = new PoobkemonGUI(entrenador1, entrenador2, modoJuego);
-                gui.setVisible(true);
-    
                 // Cerrar la ventana de selección del Entrenador 2
-                SwingUtilities.getWindowAncestor(seleccionEntrenador2).dispose();
+                JFrame frameSeleccion2 = (JFrame) SwingUtilities.getWindowAncestor(seleccionEntrenador2);
+                frameSeleccion2.dispose();
     
-                // Cerrar la ventana de configuración
-                dispose();
+                // NUEVO: Mostrar la pantalla de selección de items para el Entrenador 1
+                seleccionItems1 = new ItemSelectionMenu(jugador1, e3 -> {
+                    // Guardar los items seleccionados por el Entrenador 1
+                    List<Item> itemsEntrenador1 = seleccionItems1.getItemsSeleccionados();
+    
+                    // Cerrar la ventana de selección de items del Entrenador 1
+                    JFrame frameItems1 = (JFrame) SwingUtilities.getWindowAncestor(seleccionItems1);
+                    frameItems1.dispose();
+    
+                    // NUEVO: Mostrar la pantalla de selección de items para el Entrenador 2
+                    seleccionItems2 = new ItemSelectionMenu(jugador2, e4 -> {
+                        // Guardar los items seleccionados por el Entrenador 2
+                        List<Item> itemsEntrenador2 = seleccionItems2.getItemsSeleccionados();
+    
+                        // Cerrar la ventana de selección de items del Entrenador 2
+                        JFrame frameItems2 = (JFrame) SwingUtilities.getWindowAncestor(seleccionItems2);
+                        frameItems2.dispose();
+    
+                        // Crear equipos de Pokémon basados en las selecciones
+                        List<Pokemon> equipoJugador = seleccionEntrenador1.getPokemonesComoObjetos();
+                        List<Pokemon> equipoRival = seleccionEntrenador2.getPokemonesComoObjetos();
+    
+                        Entrenador entrenador1;
+                        Entrenador entrenador2;
+                        try {
+                            // Crear entrenadores con los Pokémon e items seleccionados
+                            entrenador1 = new Entrenador(jugador1, esJugador1Humano, equipoJugador, itemsEntrenador1);
+                            entrenador2 = new Entrenador(jugador2, esJugador2Humano, equipoRival, itemsEntrenador2);
+                        } catch (PoobkemonException ex) {
+                            JOptionPane.showMessageDialog(this, "Error al crear los entrenadores: " + ex.getMessage());
+                            return;
+                        }
+    
+                        // Abrir la pantalla de batalla
+                        PoobkemonGUI gui = new PoobkemonGUI(entrenador1, entrenador2, modoJuego);
+                        gui.setVisible(true);
+    
+                        // Cerrar la ventana de configuración
+                        dispose();
+                    });
+    
+                    // Mostrar selección de items para el Entrenador 2
+                    JFrame frameItems2 = new JFrame("Selecciona Items - " + jugador2);
+                    frameItems2.setContentPane(seleccionItems2);
+                    frameItems2.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    frameItems2.setUndecorated(true);
+                    frameItems2.setVisible(true);
+                });
+    
+                // Mostrar selección de items para el Entrenador 1
+                JFrame frameItems1 = new JFrame("Selecciona Items - " + jugador1);
+                frameItems1.setContentPane(seleccionItems1);
+                frameItems1.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frameItems1.setUndecorated(true);
+                frameItems1.setVisible(true);
             });
     
             // Mostrar selección del Entrenador 2
-            JFrame frame2 = new JFrame("Selecciona Pokémon - Entrenador 2");
+            JFrame frame2 = new JFrame("Selecciona Pokémon - " + jugador2);
             frame2.setContentPane(seleccionEntrenador2);
-            frame2.setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
-            frame2.setUndecorated(true); // Sin bordes
+            frame2.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame2.setUndecorated(true);
             frame2.setVisible(true);
-    
-            // Cerrar la ventana de selección del Entrenador 1
-            SwingUtilities.getWindowAncestor(seleccionEntrenador1).dispose();
         });
     
         // Mostrar selección del Entrenador 1
-        JFrame frame1 = new JFrame("Selecciona Pokémon - Entrenador 1");
+        JFrame frame1 = new JFrame("Selecciona Pokémon - " + jugador1);
         frame1.setContentPane(seleccionEntrenador1);
-        frame1.setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
-        frame1.setUndecorated(true); // Sin bordes
+        frame1.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame1.setUndecorated(true);
         frame1.setVisible(true);
     }
 

@@ -24,7 +24,7 @@ public class Item implements Serializable {
         }
 
         switch (tipo) {
-            case POTION:
+            case POCION:
                 if (!objetivo.estaDebilitado()) {
                     objetivo.recuperarPS(20);
                     cantidad--;
@@ -33,7 +33,7 @@ public class Item implements Serializable {
                 }
                 break;
 
-            case SUPERPOTION:
+            case SUPERPOCION:
                 if (!objetivo.estaDebilitado()) {
                     objetivo.recuperarPS(50);
                     cantidad--;
@@ -42,7 +42,7 @@ public class Item implements Serializable {
                 }
                 break;
 
-            case HYPERPOTION:
+            case HYPERPOCION:
                 if (!objetivo.estaDebilitado()) {
                     objetivo.recuperarPS(200);
                     cantidad--;
@@ -51,7 +51,7 @@ public class Item implements Serializable {
                 }
                 break;
 
-            case REVIVE:
+            case REVIVIR:
                 if (objetivo.estaDebilitado()) {
                     objetivo.revivir();
                     cantidad--;
