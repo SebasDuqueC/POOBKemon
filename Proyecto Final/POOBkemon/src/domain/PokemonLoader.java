@@ -15,29 +15,39 @@ public class PokemonLoader {
         
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
             String linea;
-            // Saltar la primera línea (encabezado)
-            br.readLine();
+            boolean primeraLinea = true;
             
             while ((linea = br.readLine()) != null) {
+                // Saltarse la primera línea (encabezados)
+                if (primeraLinea) {
+                    primeraLinea = false;
+                    continue;
+                }
+                
                 String[] datos = linea.split(",");
-                if (datos.length == 5) {
+                if (datos.length == 8) { // Verificar que tenga los 8 campos
                     String nombre = datos[0];
-                    String tipo = datos[1];
-                    int vida = Integer.parseInt(datos[2]);
+                    String tipoStr = datos[1];
+                    int ps = Integer.parseInt(datos[2]);
                     int ataque = Integer.parseInt(datos[3]);
                     int defensa = Integer.parseInt(datos[4]);
+                    int velocidad = Integer.parseInt(datos[5]);
+                    int ataqueEspecial = Integer.parseInt(datos[6]);
+                    int defensaEspecial = Integer.parseInt(datos[7]);
                     
-                    // Convertir tipo a formato de nombre de clase (primera letra mayúscula, resto minúsculas)
-                    String nombreClase = tipo.charAt(0) + tipo.substring(1).toLowerCase();
+                    // Mapear el tipo a la clase correspondiente
+                    Tipo tipo = Tipo.valueOf(tipoStr);
+                    String nombreClase = tipo.name().substring(0, 1) + tipo.name().substring(1).toLowerCase();
                     
                     try {
-                        // Usar reflexión para instanciar la clase correspondiente
-                        Class<?> clasePokemont = Class.forName("domain." + nombreClase);
-                        Constructor<?> constructor = clasePokemont.getConstructor(String.class, int.class, int.class, int.class);
-                        Pokemon pokemon = (Pokemon) constructor.newInstance(nombre, vida, ataque, defensa);
+                        // Usar reflexión para instanciar la clase correspondiente con los nuevos parámetros
+                        Class<?> clasePokemon = Class.forName("domain." + nombreClase);
+                        Constructor<?> constructor = clasePokemon.getConstructor(String.class, int.class, int.class, int.class, int.class, int.class, int.class);
+                        Pokemon pokemon = (Pokemon) constructor.newInstance(nombre, ps, ataque, defensa, velocidad, ataqueEspecial, defensaEspecial);
                         pokemons.add(pokemon);
                     } catch (Exception e) {
-                        System.err.println("Error al crear pokémon de tipo " + tipo + ": " + e.getMessage());
+                        System.err.println("Error al crear pokémon de tipo " + tipoStr + ": " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             }

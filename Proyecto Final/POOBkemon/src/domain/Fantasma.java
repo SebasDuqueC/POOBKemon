@@ -2,8 +2,8 @@ package domain;
 
 public class Fantasma extends Pokemon {
     
-    public Fantasma(String nombre, int vida, int ataque, int defensa) {
-        super(nombre, vida, ataque, defensa);
+    public Fantasma(String nombre, int ps, int ataque, int defensa, int velocidad, int ataqueEspecial, int defensaEspecial) {
+        super(nombre, ps, ataque, defensa, velocidad, ataqueEspecial, defensaEspecial);
     }
     
     @Override

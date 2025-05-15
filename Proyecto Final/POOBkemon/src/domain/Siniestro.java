@@ -2,8 +2,8 @@ package domain;
 
 public class Siniestro extends Pokemon {
     
-    public Siniestro(String nombre, int vida, int ataque, int defensa) {
-        super(nombre, vida, ataque, defensa);
+    public Siniestro(String nombre, int ps, int ataque, int defensa, int velocidad, int ataqueEspecial, int defensaEspecial) {
+        super(nombre, ps, ataque, defensa, velocidad, ataqueEspecial, defensaEspecial);
     }
     
     @Override

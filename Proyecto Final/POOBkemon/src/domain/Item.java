@@ -1,68 +1,47 @@
 package domain;
-import exceptions.PoobkemonException;
+
 import java.io.Serializable;
 
 public class Item implements Serializable {
-    private static final long serialVersionUID = 1L;
     private String nombre;
     private TipoItem tipo;
     private int cantidad;
-
+    private String descripcion;
+    private int potencia;
+    
     public Item(String nombre, TipoItem tipo, int cantidad) {
+        this(nombre, tipo, cantidad, "", 0);
+    }
+    
+    public Item(String nombre, TipoItem tipo, int cantidad, String descripcion, int potencia) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.cantidad = cantidad;
+        this.descripcion = descripcion;
+        this.potencia = potencia;
     }
-
-    public boolean disponible() {
-        return cantidad > 0;
-    }
-
-    public void usar(Pokemon objetivo) throws PoobkemonException {
-        if (!disponible()) {
-            throw new PoobkemonException("No quedan unidades del ítem.");
-        }
-
-        switch (tipo) {
-            case POCION:
-                if (!objetivo.estaDebilitado()) {
-                    objetivo.recuperarPS(20);
-                    cantidad--;
-                } else {
-                    throw new PoobkemonException("No puedes usar una poción en un pokémon debilitado.");
-                }
-                break;
-
-            case SUPERPOCION:
-                if (!objetivo.estaDebilitado()) {
-                    objetivo.recuperarPS(50);
-                    cantidad--;
-                } else {
-                    throw new PoobkemonException("No puedes usar una superpoción en un pokémon debilitado.");
-                }
-                break;
-
-            case HYPERPOCION:
-                if (!objetivo.estaDebilitado()) {
-                    objetivo.recuperarPS(200);
-                    cantidad--;
-                } else {
-                    throw new PoobkemonException("No puedes usar una hiperpoción en un pokémon debilitado.");
-                }
-                break;
-
-            case REVIVIR:
-                if (objetivo.estaDebilitado()) {
-                    objetivo.revivir();
-                    cantidad--;
-                } else {
-                    throw new PoobkemonException("Solo puedes usar Revive en un pokémon debilitado.");
-                }
-                break;
-        }
-    }
-
+    
+    // Getters
     public String getNombre() { return nombre; }
     public TipoItem getTipo() { return tipo; }
     public int getCantidad() { return cantidad; }
+    public String getDescripcion() { return descripcion; }
+    public int getPotencia() { return potencia; }
+    
+    // Método para comprobar si hay unidades disponibles
+    public boolean disponible() {
+        return cantidad > 0;
+    }
+    
+    // Método para usar el item y reducir cantidad
+    public void usar() {
+        if (cantidad > 0) {
+            cantidad--;
+        }
+    }
+    
+    @Override
+    public String toString() {
+        return nombre + " x" + cantidad;
+    }
 }

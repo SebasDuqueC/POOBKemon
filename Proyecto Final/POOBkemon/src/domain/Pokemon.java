@@ -9,28 +9,27 @@ public abstract class Pokemon implements Serializable {
     private static final long serialVersionUID = 1L;
     
     protected String nombre;
-    protected int vida;
     protected int psMaximo;
     protected int psActual;
     protected int ataque;
     protected int defensa;
+    protected int velocidad;
     protected int ataqueEspecial;
     protected int defensaEspecial;
-    protected int velocidad;
     protected List<Movimiento> movimientos;
+    protected boolean debilitado;
     
-    public Pokemon(String nombre, int vida, int ataque, int defensa) {
+    public Pokemon(String nombre, int ps, int ataque, int defensa, int velocidad, int ataqueEspecial, int defensaEspecial) {
         this.nombre = nombre;
-        this.psMaximo = vida;
-        this.psActual = vida;
+        this.psMaximo = ps;
+        this.psActual = ps;
         this.ataque = ataque;
         this.defensa = defensa;
-        this.ataqueEspecial = ataque;  // Valor por defecto
-        this.defensaEspecial = defensa; // Valor por defecto
-        this.velocidad = 100; // Valor por defecto
-        
-        // Asignar 4 movimientos aleatorios según el tipo del Pokémon
+        this.velocidad = velocidad;
+        this.ataqueEspecial = ataqueEspecial;
+        this.defensaEspecial = defensaEspecial;
         this.movimientos = new ArrayList<>();
+        this.debilitado = false;
         
         // Obtener el tipo basado en la clase
         Tipo tipoPokemon = Tipo.valueOf(this.getClass().getSimpleName().toUpperCase());
@@ -84,4 +83,6 @@ public abstract class Pokemon implements Serializable {
     
     // Método abstracto para movimiento especial
     public abstract String mover();
+
+    
 }

@@ -1,0 +1,5 @@
+nombre,tipo,descripcion,potencia
+Pocion,POCION,Restaura PS a un Pokemon,20
+SuperPocion,SUPERPOCION,Restaura una buena cantidad de PS,50
+HiperPocion,HIPERPOCION,Restaura una gran cantidad de PS,200
+Revivir,REVIVIR,Revive a un Pokemon debilitado,0

@@ -38,11 +38,36 @@ public class Entrenador implements Serializable {
         activoIndex = nuevoIndice;
     }
 
-    public void usarItem(int itemIndex, Pokemon objetivo) throws PoobkemonException {
-        if (itemIndex < 0 || itemIndex >= items.size()) {
-            throw new PoobkemonException("Ítem no disponible.");
-        }
-        items.get(itemIndex).usar(objetivo);
+    public void usarItem(int index, Pokemon pokemon) throws PoobkemonException {
+            if (index >= items.size()) {
+                throw new PoobkemonException("Índice de ítem inválido");
+            }
+            
+            Item item = items.get(index);
+            if (!item.disponible()) {
+                throw new PoobkemonException("No quedan unidades de este ítem");
+            }
+            
+            // Aplicar el efecto según el tipo de ítem
+            switch (item.getTipo()) {
+                case POCION:
+                case SUPERPOCION:
+                case HYPERPOCION:
+                    // Usar recuperarPS en lugar de curar
+                    pokemon.recuperarPS(item.getPotencia());
+                    break;
+                case REVIVIR:
+                    if (!pokemon.estaDebilitado()) {
+                        throw new PoobkemonException("Este ítem solo puede usarse en Pokémon debilitados");
+                    }
+                    pokemon.revivir();
+                    break;
+                default:
+                    throw new PoobkemonException("Tipo de ítem no implementado");
+            }
+            
+            // Consumir una unidad del ítem
+            item.usar();
     }
 
     public boolean todosDebilitados() {
