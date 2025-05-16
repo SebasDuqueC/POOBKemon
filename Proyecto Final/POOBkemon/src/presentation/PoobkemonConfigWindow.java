@@ -3,7 +3,6 @@ package presentation;
 import exceptions.PoobkemonException;
 import domain.*;
 
-import presentation.ItemSelectionMenu;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;

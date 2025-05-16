@@ -8,7 +8,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class PokemonMoveSelector extends JDialog {
     
@@ -18,6 +20,7 @@ public class PokemonMoveSelector extends JDialog {
     private JButton btnCancelar;
     private List<Movimiento> movimientosSeleccionados;
     private boolean confirmed = false;
+    private JLabel lblImagenPokemon;
     
     public PokemonMoveSelector(JFrame parent, String pokemonName) {
         super(parent, "Selección de Movimientos para " + pokemonName, true);
@@ -30,9 +33,9 @@ public class PokemonMoveSelector extends JDialog {
         initComponents();
         
         // Configurar diálogo
-        setSize(500, 400);
+        setSize(800, 600);
         setLocationRelativeTo(parent);
-        setResizable(false);
+        setResizable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
     
@@ -42,50 +45,150 @@ public class PokemonMoveSelector extends JDialog {
         // Panel de título con información del Pokémon
         JPanel panelInfo = new JPanel(new BorderLayout());
         panelInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelInfo.setBackground(new Color(240, 240, 240));
         
-        JLabel lblTitle = new JLabel("Selecciona los movimientos para " + pokemon.getNombre());
-        lblTitle.setFont(new Font("Press Start 2P", Font.BOLD, 16));
-        panelInfo.add(lblTitle, BorderLayout.NORTH);
+        // Panel izquierdo con imagen y nombre
+        JPanel panelIzquierdo = new JPanel(new BorderLayout());
+        panelIzquierdo.setBackground(new Color(240, 240, 240));
         
-        // Datos del Pokémon
-        JPanel panelStats = new JPanel(new GridLayout(3, 2, 10, 5));
-        panelStats.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        lblImagenPokemon = new JLabel();
+        lblImagenPokemon.setPreferredSize(new Dimension(200, 200));
+        lblImagenPokemon.setHorizontalAlignment(SwingConstants.CENTER);
+        mostrarGifPokemon(pokemon.getNombre());
         
-        panelStats.add(new JLabel("Vida:"));
-        panelStats.add(new JLabel(String.valueOf(pokemon.getVida())));
-        panelStats.add(new JLabel("Ataque:"));
-        panelStats.add(new JLabel(String.valueOf(pokemon.getAtaque())));
-        panelStats.add(new JLabel("Defensa:"));
-        panelStats.add(new JLabel(String.valueOf(pokemon.getDefensa())));
+        JLabel lblNombre = new JLabel(pokemon.getNombre(), SwingConstants.CENTER);
+        lblNombre.setFont(new Font("Press Start 2P", Font.BOLD, 20));
         
-        panelInfo.add(panelStats, BorderLayout.CENTER);
+        panelIzquierdo.add(lblImagenPokemon, BorderLayout.CENTER);
+        panelIzquierdo.add(lblNombre, BorderLayout.SOUTH);
+        
+        // Panel derecho con estadísticas
+        JPanel panelDerecho = new JPanel(new GridLayout(4, 2, 10, 10));
+        panelDerecho.setBackground(new Color(240, 240, 240));
+        panelDerecho.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Estilo para las etiquetas de estadísticas
+        Font statsFont = new Font("Arial", Font.BOLD, 14);
+        
+        JLabel lblVida = new JLabel("Vida:");
+        JLabel lblVidaValor = new JLabel(String.valueOf(pokemon.getVida()));
+        JLabel lblAtaque = new JLabel("Ataque:");
+        JLabel lblAtaqueValor = new JLabel(String.valueOf(pokemon.getAtaque()));
+        JLabel lblDefensa = new JLabel("Defensa:");
+        JLabel lblDefensaValor = new JLabel(String.valueOf(pokemon.getDefensa()));
+        JLabel lblVelocidad = new JLabel("Velocidad:");
+        JLabel lblVelocidadValor = new JLabel(String.valueOf(pokemon.getVelocidad()));
+        
+        lblVida.setFont(statsFont);
+        lblVidaValor.setFont(statsFont);
+        lblAtaque.setFont(statsFont);
+        lblAtaqueValor.setFont(statsFont);
+        lblDefensa.setFont(statsFont);
+        lblDefensaValor.setFont(statsFont);
+        lblVelocidad.setFont(statsFont);
+        lblVelocidadValor.setFont(statsFont);
+        
+        panelDerecho.add(lblVida);
+        panelDerecho.add(lblVidaValor);
+        panelDerecho.add(lblAtaque);
+        panelDerecho.add(lblAtaqueValor);
+        panelDerecho.add(lblDefensa);
+        panelDerecho.add(lblDefensaValor);
+        panelDerecho.add(lblVelocidad);
+        panelDerecho.add(lblVelocidadValor);
+        
+        panelInfo.add(panelIzquierdo, BorderLayout.WEST);
+        panelInfo.add(panelDerecho, BorderLayout.CENTER);
         add(panelInfo, BorderLayout.NORTH);
         
-        // Panel de movimientos
-        JPanel panelMovimientos = new JPanel(new GridLayout(0, 1, 0, 10));
-        panelMovimientos.setBorder(BorderFactory.createTitledBorder("Movimientos Disponibles"));
+        // Panel de movimientos con diseño mejorado
+        JPanel panelMovimientos = new JPanel();
+        panelMovimientos.setLayout(new BoxLayout(panelMovimientos, BoxLayout.Y_AXIS));
+        panelMovimientos.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(new Color(100, 100, 100)),
+            "Selecciona 4 movimientos",
+            javax.swing.border.TitledBorder.CENTER,
+            javax.swing.border.TitledBorder.TOP,
+            new Font("Press Start 2P", Font.BOLD, 14)
+        ));
         
-        // Obtener movimientos disponibles para este tipo de Pokémon
-        Tipo tipoPokemon = Tipo.valueOf(pokemon.getClass().getSimpleName().toUpperCase());
-        Movimiento[] movimientosDisponibles = MovimientoFactory.obtenerCuatroMovimientos(tipoPokemon);
+        // Obtener todos los movimientos disponibles
+        List<Movimiento> todosLosMovimientos = new ArrayList<>();
         
-        // Crear checkboxes para cada movimiento
-        for (Movimiento m : movimientosDisponibles) {
-            String descripcion = m.getNombre() + " - Potencia: " + m.getPotencia() + 
-                                " - Precisión: " + m.getPrecision() + " - PP: " + m.getPpMaximo();
-            JCheckBox checkBox = new JCheckBox(descripcion);
-            checkBox.setFont(new Font("Arial", Font.PLAIN, 14));
-            panelMovimientos.add(checkBox);
+        // Añadir movimientos del catálogo
+        todosLosMovimientos.add(MovimientoCatalogo.lanzallamas());
+        todosLosMovimientos.add(MovimientoCatalogo.garraDragon());
+        todosLosMovimientos.add(MovimientoCatalogo.hidrobomba());
+        todosLosMovimientos.add(MovimientoCatalogo.cabezazo());
+        todosLosMovimientos.add(MovimientoCatalogo.trueno());
+        todosLosMovimientos.add(MovimientoCatalogo.terremoto());
+        todosLosMovimientos.add(MovimientoCatalogo.golpeCuerpo());
+        todosLosMovimientos.add(MovimientoCatalogo.psicoataque());
+        
+        // Añadir movimientos genéricos de cada tipo
+        for (Tipo tipo : Tipo.values()) {
+            Movimiento[] movimientosTipo = MovimientoFactory.obtenerCuatroMovimientos(tipo);
+            Collections.addAll(todosLosMovimientos, movimientosTipo);
+        }
+        
+        // Crear checkboxes para cada movimiento con diseño mejorado
+        for (Movimiento m : todosLosMovimientos) {
+            JPanel movimientoPanel = new JPanel(new BorderLayout());
+            movimientoPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            
+            JCheckBox checkBox = new JCheckBox();
+            checkBox.setFont(new Font("Arial", Font.BOLD, 14));
+            
+            JLabel lblMovimiento = new JLabel(String.format(
+                "<html><b>%s</b> - Tipo: %s<br>Potencia: %d - Precisión: %d - PP: %d<br>Categoría: %s</html>",
+                m.getNombre(),
+                m.getTipo(),
+                m.getPotencia(),
+                m.getPrecision(),
+                m.getPpMaximo(),
+                m.getCategoria()
+            ));
+            
+            movimientoPanel.add(checkBox, BorderLayout.WEST);
+            movimientoPanel.add(lblMovimiento, BorderLayout.CENTER);
+            
+            // Añadir efecto hover
+            movimientoPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    movimientoPanel.setBackground(new Color(230, 230, 230));
+                }
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    movimientoPanel.setBackground(null);
+                }
+            });
+            
+            // Hacer que todo el panel sea clickeable
+            movimientoPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    checkBox.setSelected(!checkBox.isSelected());
+                }
+            });
+            
+            panelMovimientos.add(movimientoPanel);
             moveCheckboxes.add(checkBox);
         }
         
         JScrollPane scrollPane = new JScrollPane(panelMovimientos);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
         
-        // Panel de botones
+        // Panel de botones con diseño mejorado
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelBotones.setBackground(new Color(240, 240, 240));
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
         btnCancelar = new JButton("Cancelar");
         btnConfirmar = new JButton("Confirmar");
+        
+        // Estilo para los botones
+        Font buttonFont = new Font("Press Start 2P", Font.PLAIN, 12);
+        btnCancelar.setFont(buttonFont);
+        btnConfirmar.setFont(buttonFont);
         
         btnCancelar.addActionListener(e -> dispose());
         
@@ -108,7 +211,7 @@ public class PokemonMoveSelector extends JDialog {
             movimientosSeleccionados.clear();
             for (int i = 0; i < moveCheckboxes.size(); i++) {
                 if (moveCheckboxes.get(i).isSelected()) {
-                    movimientosSeleccionados.add(movimientosDisponibles[i]);
+                    movimientosSeleccionados.add(todosLosMovimientos.get(i));
                 }
             }
             
@@ -119,6 +222,18 @@ public class PokemonMoveSelector extends JDialog {
         panelBotones.add(btnCancelar);
         panelBotones.add(btnConfirmar);
         add(panelBotones, BorderLayout.SOUTH);
+    }
+    
+    private void mostrarGifPokemon(String nombrePokemon) {
+        try {
+            String nombreArchivo = nombrePokemon.toLowerCase() + ".gif";
+            ImageIcon gifPokemon = new ImageIcon(Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
+            lblImagenPokemon.setIcon(gifPokemon);
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar el GIF para " + nombrePokemon + ": " + e.getMessage());
+            lblImagenPokemon.setText("[ " + nombrePokemon + " ]");
+        }
     }
     
     public boolean isConfirmed() {

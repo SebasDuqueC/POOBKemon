@@ -18,6 +18,9 @@ public abstract class Pokemon implements Serializable {
     protected int defensaEspecial;
     protected List<Movimiento> movimientos;
     protected boolean debilitado;
+    protected int nivel = 50; // Valor por defecto
+    protected int experiencia = 0;
+    protected int experienciaMaxima = 100;
     
     public Pokemon(String nombre, int ps, int ataque, int defensa, int velocidad, int ataqueEspecial, int defensaEspecial) {
         this.nombre = nombre;
@@ -54,6 +57,9 @@ public abstract class Pokemon implements Serializable {
     public int getDefensaEspecial() { return defensaEspecial; }
     public int getVelocidad() { return velocidad; }
     public List<Movimiento> getMovimientos() { return movimientos; }
+    public int getNivel() { return nivel; }
+    public int getExperiencia() { return experiencia; }
+    public int getExperienciaMaxima() { return experienciaMaxima; }
     
     // Métodos necesarios para el funcionamiento del juego
     public boolean estaDebilitado() {
