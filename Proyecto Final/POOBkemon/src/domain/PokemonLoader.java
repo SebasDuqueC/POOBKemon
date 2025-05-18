@@ -57,31 +57,21 @@ public class PokemonLoader {
         
         return pokemons;
     }
-    
+
     public static List<Pokemon> obtenerPokemonesDisponibles() {
-    // Obtener directorio actual
-    File currentDir = new File(System.getProperty("user.dir"));
-    System.out.println("Directorio actual: " + currentDir.getAbsolutePath());
-    
-    // Buscar en diferentes ubicaciones posibles
-    String[] posiblesRutas = {
-        "resources/pokemons.txt",
-        "POOBkemon/resources/pokemons.txt",
-        "/home/sebastian/POOBKemon/Proyecto Final/resources/pokemons.txt"
-    };
-    
-    for (String ruta : posiblesRutas) {
+        // Ruta fija
+        String ruta = "Proyecto Final/resources/pokemons.txt";
         File archivo = new File(ruta);
-        System.out.println("Intentando cargar desde: " + archivo.getAbsolutePath());
+
         if (archivo.exists()) {
-            System.out.println("¡Archivo encontrado en: " + archivo.getAbsolutePath());
+            System.out.println("¡Archivo encontrado en: " +  ruta + "!");
             return cargarPokemons(ruta);
         }
+
+        System.err.println("No se encontró el archivo pokemons.txt en la ubicación: " + ruta);
+        return new ArrayList<>(); // Lista vacía si no se encuentra
     }
-    
-    System.err.println("No se encontró el archivo pokemons.txt en ninguna ubicación conocida");
-    return new ArrayList<>(); // Lista vacía si no se encuentra
-}
+
     
     // Método de ejemplo para probar
     public static void main(String[] args) {
