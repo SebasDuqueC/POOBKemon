@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static jdk.xml.internal.SecuritySupport.getClassLoader;
-
 public class PoobkemonGUI extends JFrame {
 
     private Batalla batalla;
@@ -183,13 +181,14 @@ public class PoobkemonGUI extends JFrame {
 // Crear un JPanel para ajustar la posición del GIF
         JPanel panelAjuste = new JPanel(new BorderLayout());
         panelAjuste.setOpaque(false); // Hacer el panel transparente
-        panelAjuste.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Margen izquierdo de 20 píxeles
+        panelAjuste.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // Menor margen a la izquierda
 
 // Añadir el JLabel al panel de ajuste
+        lblImagenPokemonRival.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // Menor margen a la izquierda
         panelAjuste.add(lblImagenPokemonRival, BorderLayout.CENTER);
 
 // Añadir el panel de ajuste al panel con fondo
-        panelConFondo.add(panelAjuste, BorderLayout.EAST);
+        panelConFondo.add(panelAjuste, BorderLayout.CENTER);
 
 // Añadir el panel con fondo al panel principal
         panelPokemonRival.add(panelInfoRival, BorderLayout.EAST);
@@ -272,13 +271,14 @@ public class PoobkemonGUI extends JFrame {
 // Crear un JPanel para ajustar la posición del GIF
         JPanel panelAjusteJugador = new JPanel(new BorderLayout());
         panelAjusteJugador.setOpaque(false); // Hacer el panel transparente
-        panelAjusteJugador.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // Margen izquierdo de 20 píxeles
+        panelAjusteJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120)); // Mayor margen a la derecha
 
 // Añadir el JLabel al panel de ajuste en la posición izquierda
-        panelAjusteJugador.add(lblImagenPokemonJugador, BorderLayout.WEST);
+        lblImagenPokemonJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120)); // Mayor margen a la derecha
+        panelAjusteJugador.add(lblImagenPokemonJugador, BorderLayout.CENTER);
 
 // Añadir el panel de ajuste al panel con fondo
-        panelConFondoJugador.add(panelAjusteJugador, BorderLayout.WEST);
+        panelConFondoJugador.add(panelAjusteJugador, BorderLayout.CENTER);
 
 // Añadir el panel con fondo al panel principal
         panelPokemonJugador.add(panelInfoJugador, BorderLayout.WEST);
@@ -373,7 +373,7 @@ public class PoobkemonGUI extends JFrame {
         panelControles.add(panelItems, "items");
 
         // Panel para botones de guardar y cargar partida
-        JPanel panelAcciones = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel panelAcciones = new JPanel(new GridLayout(1, 3, 10, 0));
 
         btnGuardar = new JButton("Guardar Partida");
         btnGuardar.setBackground(new Color(245, 245, 220)); // Color hueso
@@ -386,6 +386,24 @@ public class PoobkemonGUI extends JFrame {
         btnCargar.setForeground(Color.BLACK); // Texto en negro
         btnCargar.addActionListener(e -> cargarPartida());
         panelAcciones.add(btnCargar);
+
+        // --- Nuevo botón Huir ---
+        JButton btnHuir = new JButton("Huir");
+        btnHuir.setBackground(new Color(245, 245, 220));
+        btnHuir.setForeground(Color.BLACK);
+        btnHuir.addActionListener(e -> {
+            // Cerrar la ventana actual y abrir la ventana de configuración
+            this.dispose();
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    PoobkemonConfigWindow configWindow = new PoobkemonConfigWindow();
+                    configWindow.setVisible(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+        });
+        panelAcciones.add(btnHuir);
 
         // Aplicar la fuente personalizada
         try {
@@ -549,7 +567,7 @@ public class PoobkemonGUI extends JFrame {
 
             if (batalla.hayGanador()) {
                 Entrenador ganador = batalla.getGanador();
-                areaLog.append("\n¡" + ganador.getNombre() + " ha ganado el combate!\n");
+                mostrarVentanaGanador(ganador);
                 deshabilitarControles();
                 timerTurno.stop();
                 return;
@@ -601,6 +619,7 @@ public class PoobkemonGUI extends JFrame {
                 } else {
                     areaLog.append("¡" + entrenador1.getNombre() + " ha ganado el combate!\n");
                 }
+                mostrarVentanaGanador(entrenador);
                 deshabilitarControles();
                 timerTurno.stop();
             }
@@ -609,43 +628,68 @@ public class PoobkemonGUI extends JFrame {
 
     private void ejecutarTurnoIA() {
         try {
-            // Verificar que es realmente el turno de la IA
-            if (batalla.getTurnoActual() != entrenador2) {
+            Entrenador actual = batalla.getTurnoActual();
+            if (!(actual instanceof EntrenadorIA)) {
                 return;
             }
-
-            // La IA elige un movimiento aleatorio
-            int movimientoIA = (int) (Math.random() * entrenador2.getActivo().getMovimientos().size());
-            String resultadoIA = batalla.ejecutarMovimiento(movimientoIA);
-            areaLog.append(resultadoIA + "\n");
+            EntrenadorIA ia = (EntrenadorIA) actual;
+            int accion = ia.decidirAccion(batalla);
+            if (accion >= 0) {
+                // Movimiento
+                String resultado = batalla.ejecutarMovimiento(accion);
+                areaLog.append("[IA] " + actual.getNombre() + " usó movimiento: " + actual.getActivo().getMovimientos().get(accion).getNombre() + "\n");
+                areaLog.append(resultado + "\n");
+            } else if (accion <= -100 && accion > -200) {
+                // Usar ítem
+                int itemIndex = -100 - accion;
+                actual.usarItem(itemIndex, actual.getActivo());
+                Item item = actual.getItems().get(itemIndex);
+                areaLog.append("[IA] " + actual.getNombre() + " usó ítem: " + item.getNombre() + " en " + actual.getActivo().getNombre() + "\n");
+                batalla.cambiarTurno();
+            } else if (accion <= -200) {
+                // Cambiar Pokémon
+                int pokeIndex = -200 - accion;
+                actual.cambiarPokemon(pokeIndex);
+                areaLog.append("[IA] " + actual.getNombre() + " cambió a " + actual.getActivo().getNombre() + "\n");
+                batalla.cambiarTurno();
+            }
 
             if (batalla.hayGanador()) {
                 Entrenador ganador = batalla.getGanador();
-                areaLog.append("\n¡" + ganador.getNombre() + " ha ganado el combate!\n");
+                mostrarVentanaGanador(ganador);
                 deshabilitarControles();
-                timerTurno.stop();
+                if (timerTurno != null) timerTurno.stop();
+                actualizarInterfaz();
                 return;
             }
 
             // Verificar si el Pokémon de la IA quedó deshabilitado
-            verificarPokemonDeshabilitado(entrenador2);
-
-            // Asegurar que el turno regrese al jugador después de la acción de la IA
-            if (batalla.getTurnoActual() != entrenador1) {
-                areaLog.append("Corrigiendo turno, ahora es tu turno\n");
-                batalla.cambiarTurno();
-            }
+            verificarPokemonDeshabilitado(actual);
 
             actualizarInterfaz();
-            iniciarTimerTurno();
+
+            // Si ambos son IA, continuar automáticamente
+            if (!batalla.getTurnoActual().esHumano() && entrenador1 instanceof EntrenadorIA && entrenador2 instanceof EntrenadorIA) {
+                // Espera breve para que el usuario vea el log
+                Timer autoTimer = new Timer(500, evt -> {
+                    ((Timer) evt.getSource()).stop();
+                    ejecutarTurnoIA();
+                });
+                autoTimer.setRepeats(false);
+                autoTimer.start();
+            } else if (!batalla.getTurnoActual().esHumano()) {
+                // Si solo el rival es IA, iniciar timer normal
+                iniciarTimerTurno();
+            }
         } catch (PoobkemonException e) {
-            areaLog.append("Error del oponente: " + e.getMessage() + "\n");
-            // Asegurar que después de un error siempre vuelva al jugador
-            if (batalla.getTurnoActual() != entrenador1) {
-                batalla.cambiarTurno();
+            areaLog.append("Error de IA: " + e.getMessage() + "\n");
+            if (batalla.getTurnoActual().esHumano()) {
+                actualizarInterfaz();
+                iniciarTimerTurno();
+            } else {
+                // Si sigue siendo IA, intentar de nuevo
+                ejecutarTurnoIA();
             }
-            actualizarInterfaz();
-            iniciarTimerTurno();
         }
     }
 
@@ -741,6 +785,11 @@ public class PoobkemonGUI extends JFrame {
             // Actualizar la interfaz y comenzar el timer
             actualizarInterfaz();
             iniciarTimerTurno();
+
+            // Si el primer turno es de una IA, que juegue automáticamente
+            if (!batalla.getTurnoActual().esHumano()) {
+                ejecutarTurnoIA();
+            }
         });
     }
 
@@ -900,7 +949,7 @@ public class PoobkemonGUI extends JFrame {
         });
     }
     // Método para guardar partida
-private void guardarPartida() {
+    private void guardarPartida() {
     try {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Guardar Partida");
@@ -938,10 +987,10 @@ private void guardarPartida() {
             "No se pudo guardar la partida: " + ex.getMessage(),
             "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+    }
 
-// Método para cargar partida
-private void cargarPartida() {
+    // Método para cargar partida
+    private void cargarPartida() {
     try {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Cargar Partida");
@@ -979,10 +1028,10 @@ private void cargarPartida() {
             "No se pudo cargar la partida: " + ex.getMessage(),
             "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+    }
 
-// Clase interna para el fondo de batalla estilo Pokémon Esmeralda
-class BattleBackgroundPanel extends JPanel {
+    // Clase interna para el fondo de batalla estilo Pokémon Esmeralda
+    class BattleBackgroundPanel extends JPanel {
     private Image backgroundImage;
     private JLabel pokemonLabel;
 
@@ -1015,13 +1064,74 @@ class BattleBackgroundPanel extends JPanel {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
-}
+    }
 
+    // --- Agregar aquí el método mostrarVentanaGanador ---
+    private void mostrarVentanaGanador(Entrenador ganador) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setPreferredSize(new Dimension(350, 600));
+        JLabel titulo = new JLabel("¡GANADOR DE LA BATALLA!");
+        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(titulo);
 
-}
+        JLabel nombre = new JLabel(ganador.getNombre());
+        nombre.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(nombre);
 
-// Panel de información estilo Esmeralda para un Pokémon
-class InfoPanelEsmeralda extends JPanel {
+        panel.add(Box.createVerticalStrut(10));
+        JLabel subtitulo = new JLabel("Pokémon sobrevivientes:");
+        subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panel.add(subtitulo);
+
+        boolean haySobrevivientes = false;
+        for (Pokemon p : ganador.getPokemones()) {
+            if (!p.estaDebilitado()) {
+                haySobrevivientes = true;
+                JPanel pokePanel = new JPanel();
+                pokePanel.setLayout(new BoxLayout(pokePanel, BoxLayout.Y_AXIS));
+                pokePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+                // Imagen centrada
+                try {
+                    String nombreArchivo = p.getNombre().toLowerCase() + ".gif";
+                    ImageIcon icon = new ImageIcon(Objects.requireNonNull(
+                        getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
+                    Image img = icon.getImage().getScaledInstance(96, 96, Image.SCALE_DEFAULT);
+                    icon = new ImageIcon(img);
+                    JLabel imgLabel = new JLabel(icon);
+                    imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    pokePanel.add(imgLabel);
+                } catch (Exception e) {
+                    JLabel imgLabel = new JLabel("[?]");
+                    imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    pokePanel.add(imgLabel);
+                }
+
+                JLabel nombreLabel = new JLabel(p.getNombre());
+                nombreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                nombreLabel.setFont(nombreLabel.getFont().deriveFont(Font.BOLD, 16f));
+                pokePanel.add(nombreLabel);
+
+                pokePanel.setOpaque(false);
+                panel.add(pokePanel);
+                panel.add(Box.createVerticalStrut(10));
+            }
+        }
+
+        if (!haySobrevivientes) {
+            JLabel ninguno = new JLabel("Ningún Pokémon sobrevivió.");
+            ninguno.setAlignmentX(Component.CENTER_ALIGNMENT);
+            panel.add(ninguno);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setPreferredSize(new Dimension(370, 650));
+        JOptionPane.showMessageDialog(this, scrollPane, "¡Victoria!", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Panel de información estilo Esmeralda para un Pokémon
+    class InfoPanelEsmeralda extends JPanel {
     private JLabel lblNombre;
     private JLabel lblNivel;
     private JProgressBar barraVida;
@@ -1083,47 +1193,25 @@ class InfoPanelEsmeralda extends JPanel {
         barraExp.setMaximum(expMax);
         barraExp.setValue(expActual);
     }
-}
-
-// Panel de opciones estilo Esmeralda
-class OpcionesPanelEsmeralda extends JPanel {
-    public JButton btnLucha, btnMochila, btnPokemon, btnHuir;
-    private JLabel lblPregunta;
-
-    public OpcionesPanelEsmeralda(String nombrePokemon) {
-        setLayout(null);
-        setPreferredSize(new Dimension(600, 120));
-        setBackground(new Color(220, 220, 220));
-        setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-
-        lblPregunta = new JLabel("¿Qué hará " + nombrePokemon + "?");
-        lblPregunta.setFont(new Font("Press Start 2P", Font.BOLD, 18));
-        lblPregunta.setBounds(20, 10, 400, 30);
-        add(lblPregunta);
-
-        btnLucha = crearBoton("LUCHA", new Color(220, 60, 60), 20, 50);
-        btnMochila = crearBoton("MOCHILA", new Color(255, 220, 60), 160, 50);
-        btnPokemon = crearBoton("POKÉMON", new Color(60, 220, 100), 300, 50);
-        btnHuir = crearBoton("HUIR", new Color(60, 120, 220), 440, 50);
-
-        add(btnLucha);
-        add(btnMochila);
-        add(btnPokemon);
-        add(btnHuir);
     }
 
-    private JButton crearBoton(String texto, Color color, int x, int y) {
-        JButton btn = new JButton(texto);
-        btn.setFont(new Font("Press Start 2P", Font.BOLD, 16));
-        btn.setBounds(x, y, 120, 40);
-        btn.setBackground(color);
-        btn.setForeground(Color.BLACK);
-        btn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        btn.setFocusPainted(false);
-        return btn;
-    }
-
-    public void setNombrePokemon(String nombre) {
-        lblPregunta.setText("¿Qué hará " + nombre + "?");
+    // Panel de opciones estilo Esmeralda
+    class OpcionesPanelEsmeralda extends JPanel {
+    public JButton btnLucha = new JButton();
+    public JButton btnMochila = new JButton();
+    public JButton btnPokemon = new JButton();
+    public JButton btnHuir = new JButton();
+    public OpcionesPanelEsmeralda(String nombrePokemon) {}
+    public void setNombrePokemon(String nombre) {}
     }
 }
+
+
+
+
+
+
+
+
+
+

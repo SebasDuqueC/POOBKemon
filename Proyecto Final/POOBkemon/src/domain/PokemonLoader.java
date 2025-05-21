@@ -10,6 +10,23 @@ import java.util.List;
 
 public class PokemonLoader {
     
+    private static final String[] RUTAS_POKEMONS = {
+        "resources/pokemons.txt",
+        "POOBkemon/resources/pokemons.txt"
+    };
+
+    private static String obtenerRutaPokemons() {
+        for (String ruta : RUTAS_POKEMONS) {
+            File archivo = new File(ruta);
+            if (archivo.exists()) {
+                System.out.println("¡Archivo encontrado en: " + ruta + "!");
+                return ruta;
+            }
+        }
+        System.err.println("No se encontró el archivo pokemons.txt en las ubicaciones conocidas.");
+        return null;
+    }
+
     public static List<Pokemon> cargarPokemons(String rutaArchivo) {
         List<Pokemon> pokemons = new ArrayList<>();
         
@@ -59,24 +76,21 @@ public class PokemonLoader {
     }
 
     public static List<Pokemon> obtenerPokemonesDisponibles() {
-        // Ruta fija
-        String ruta = "Proyecto Final/resources/pokemons.txt";
-        File archivo = new File(ruta);
-
-        if (archivo.exists()) {
-            System.out.println("¡Archivo encontrado en: " +  ruta + "!");
+        String ruta = obtenerRutaPokemons();
+        if (ruta != null) {
             return cargarPokemons(ruta);
         }
-
-        System.err.println("No se encontró el archivo pokemons.txt en la ubicación: " + ruta);
         return new ArrayList<>(); // Lista vacía si no se encuentra
     }
 
-    
     // Método de ejemplo para probar
     public static void main(String[] args) {
-        // Actualizado para usar la carpeta resources
-        List<Pokemon> pokemons = cargarPokemons("POOBkemon/resources/pokemons.txt");
+        String ruta = obtenerRutaPokemons();
+        if (ruta == null) {
+            System.err.println("No se puede ejecutar la prueba porque no se encontró el archivo pokemons.txt");
+            return;
+        }
+        List<Pokemon> pokemons = cargarPokemons(ruta);
         for (Pokemon p : pokemons) {
             System.out.println(p.getNombre() + " (" + p.getClass().getSimpleName() + ")");
             System.out.println("Vida: " + p.getVida());
