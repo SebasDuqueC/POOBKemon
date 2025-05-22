@@ -32,7 +32,7 @@ public class ItemLoader {
     public static List<Item> cargarItems(String rutaArchivo) {
         List<Item> items = new ArrayList<>();
         
-        try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("Proyecto Final/resources/items.txt"))) {
             String linea;
             boolean primeraLinea = true;
             

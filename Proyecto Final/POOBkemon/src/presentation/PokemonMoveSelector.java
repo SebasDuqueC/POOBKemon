@@ -12,16 +12,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * La clase `PokemonMoveSelector` es un cuadro de diálogo personalizado que permite al usuario
+ * seleccionar movimientos para un Pokémon específico. Proporciona una interfaz gráfica
+ * que incluye información del Pokémon, una lista de movimientos disponibles y opciones
+ * para confirmar o cancelar la selección.
+ */
+
 public class PokemonMoveSelector extends JDialog {
     
     private Pokemon pokemon;
-    private List<JCheckBox> moveCheckboxes;
-    private JButton btnConfirmar;
-    private JButton btnCancelar;
+    public List<JCheckBox> moveCheckboxes;
+    public JButton btnConfirmar;
+    public JButton btnCancelar;
     private List<Movimiento> movimientosSeleccionados;
     private boolean confirmed = false;
     private JLabel lblImagenPokemon;
 
+    /**
+     * Constructor de la clase `PokemonMoveSelector`.
+     * Crea un cuadro de diálogo personalizado para que el usuario seleccione movimientos
+     * para un Pokémon específico. Este constructor inicializa el diálogo con el nombre
+     * del Pokémon y configura su diseño y comportamiento.
+     *
+     * @param parent El marco principal (`JFrame`) que actúa como padre del cuadro de diálogo.
+     * @param pokemonName El nombre del Pokémon para el cual se seleccionarán los movimientos.
+     */
 
     public PokemonMoveSelector(JFrame parent, String pokemonName) {
         super(parent, "Selección de Movimientos para " + pokemonName, true);
@@ -33,12 +49,18 @@ public class PokemonMoveSelector extends JDialog {
         
         initComponents();
         
-        // Configurar diálogo
         setSize(800, 600);
         setLocationRelativeTo(parent);
         setResizable(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
+
+    /**
+     * Inicializa los componentes gráficos del cuadro de diálogo.
+     * Este método configura el diseño principal del diálogo, crea y organiza
+     * los paneles y elementos visuales necesarios, como la información del Pokémon,
+     * la lista de movimientos disponibles y los botones de acción.
+     */
 
     private void initComponents() {
         setLayout(new BorderLayout());
@@ -109,7 +131,6 @@ public class PokemonMoveSelector extends JDialog {
                 int width = getWidth();
                 int height = getHeight();
 
-                // Crear un degradado de blanco a azul claro
                 GradientPaint gradient = new GradientPaint(0, 0, Color.WHITE, 0, height, new Color(135, 206, 250));
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, width, height);
@@ -123,7 +144,7 @@ public class PokemonMoveSelector extends JDialog {
                 javax.swing.border.TitledBorder.TOP,
                 new Font("Press Start 2P", Font.BOLD, 14)
         ));
-        panelMovimientos.setOpaque(false); // Hacer el panel completamente transparente
+        panelMovimientos.setOpaque(false);
 
         // Obtener todos los movimientos disponibles
         List<Movimiento> todosLosMovimientos = new ArrayList<>();
@@ -165,7 +186,6 @@ public class PokemonMoveSelector extends JDialog {
             movimientoPanel.add(checkBox, BorderLayout.WEST);
             movimientoPanel.add(lblMovimiento, BorderLayout.CENTER);
 
-            // Añadir efecto hover
             movimientoPanel.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
                     movimientoPanel.setBackground(new Color(230, 230, 230));
@@ -175,7 +195,6 @@ public class PokemonMoveSelector extends JDialog {
                 }
             });
 
-            // Hacer que todo el panel sea clickeable
             movimientoPanel.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
                     checkBox.setSelected(!checkBox.isSelected());
@@ -190,7 +209,6 @@ public class PokemonMoveSelector extends JDialog {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
 
-        // Panel de botones con diseño mejorado
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelBotones.setBackground(new Color(240, 240, 240));
         panelBotones.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -198,7 +216,6 @@ public class PokemonMoveSelector extends JDialog {
         btnCancelar = new JButton("Cancelar");
         btnConfirmar = new JButton("Confirmar");
 
-        // Estilo para los botones
         Font buttonFont = new Font("Press Start 2P", Font.PLAIN, 12);
         btnCancelar.setFont(buttonFont);
         btnConfirmar.setFont(buttonFont);
@@ -239,6 +256,15 @@ public class PokemonMoveSelector extends JDialog {
 
     }
 
+    /**
+     * Muestra un GIF correspondiente al Pokémon especificado por su nombre.
+     * Este método intenta cargar un archivo GIF desde la carpeta de recursos
+     * utilizando el nombre del Pokémon en minúsculas. Si no se encuentra el archivo
+     * o ocurre un error, se muestra un mensaje de texto con el nombre del Pokémon.
+     *
+     * @param nombrePokemon El nombre del Pokémon cuyo GIF se desea mostrar.
+     */
+
     private void mostrarGifPokemon(String nombrePokemon) {
         try {
             String nombreArchivo = nombrePokemon.toLowerCase() + ".gif";
@@ -250,11 +276,27 @@ public class PokemonMoveSelector extends JDialog {
             lblImagenPokemon.setText("[ " + nombrePokemon + " ]");
         }
     }
-    
+
+    /**
+     * Verifica si el usuario confirmó la selección de movimientos.
+     * Este método devuelve un valor booleano que indica si el cuadro de diálogo
+     * fue cerrado después de confirmar la selección de movimientos.
+     *
+     * @return `true` si el usuario confirmó la selección, `false` en caso contrario.
+     */
+
     public boolean isConfirmed() {
         return confirmed;
     }
-    
+
+    /**
+     * Obtiene la lista de movimientos seleccionados por el usuario.
+     * Este método devuelve una lista de objetos `Movimiento` que representan
+     * los movimientos que el usuario ha marcado como seleccionados en el cuadro de diálogo.
+     *
+     * @return Una lista de movimientos seleccionados.
+     */
+
     public List<Movimiento> getMovimientosSeleccionados() {
         return movimientosSeleccionados;
     }

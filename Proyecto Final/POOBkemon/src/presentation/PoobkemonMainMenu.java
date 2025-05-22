@@ -14,6 +14,12 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.Date;
 
+/**
+ * La clase `PoobkemonMainMenu` representa el menú principal de la aplicación POOBkemon.
+ * Proporciona opciones para iniciar una nueva partida, cargar una partida existente,
+ * acceder a las opciones (aún no implementadas) y salir del juego.
+ */
+
 public class PoobkemonMainMenu extends JFrame {
 
     private Font customFont;
@@ -39,6 +45,19 @@ public class PoobkemonMainMenu extends JFrame {
         }
     }
 
+    /**
+     * Inicializa la interfaz gráfica de usuario (GUI) del menú principal.
+     * Este método configura un panel de fondo con una imagen personalizada y
+     * agrega los botones principales del menú, como "Nueva Partida", "Cargar Partida",
+     * "Opciones" y "Salir". También define el diseño y comportamiento visual de los botones,
+     * incluyendo efectos de hover.
+     *
+     * El panel utiliza un diseño `GridBagLayout` para posicionar los botones
+     * de manera centralizada y con espaciado uniforme.
+     *
+     * @throws IOException Si ocurre un error al cargar la imagen de fondo.
+     */
+
     private void initGUI() {
         ImagePanel panel = new ImagePanel("main/resources/images/background.png");
         panel.setLayout(new GridBagLayout());
@@ -62,7 +81,7 @@ public class PoobkemonMainMenu extends JFrame {
             btn.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    btn.setBackground(new Color(72, 145, 220)); // Color al pasar el mouse
+                    btn.setBackground(new Color(72, 145, 220));
                     btn.setContentAreaFilled(true);
                 }
 
@@ -77,17 +96,14 @@ public class PoobkemonMainMenu extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(140, 0, 10, 0); // <-- ajusta este valor para subir o bajar los botones
+        gbc.insets = new Insets(140, 0, 10, 0);
         gbc.anchor = GridBagConstraints.NORTH;
 
         panel.add(btnNuevaPartida, gbc);
 
-        gbc.insets = new Insets(10, 0, 10, 0); // espaciado estándar entre botones
+        gbc.insets = new Insets(10, 0, 10, 0);
         gbc.gridy++;
         panel.add(btnCargarPartida, gbc);
-
-        gbc.gridy++;
-        panel.add(btnOpciones, gbc); // Agregar el botón "Opciones"
 
         gbc.gridy++;
         panel.add(btnSalir, gbc);
@@ -100,7 +116,6 @@ public class PoobkemonMainMenu extends JFrame {
             }
         });
 
-        // En el ActionListener del botón cargarPartida:
         btnCargarPartida.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -137,14 +152,7 @@ public class PoobkemonMainMenu extends JFrame {
             }
         });
 
-        btnOpciones.addActionListener(new ActionListener() { // Acción para el botón "Opciones"
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(PoobkemonMainMenu.this,
-                        "Opciones aún no implementadas",
-                        "Opciones",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
+
 
         btnSalir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -152,6 +160,12 @@ public class PoobkemonMainMenu extends JFrame {
             }
         });
     }
+
+    /**
+     * Abre la ventana de configuración para iniciar una nueva partida.
+     * Este método crea una instancia de `PoobkemonConfigWindow`, la hace visible
+     * y cierra el menú principal actual.
+     */
 
     private void abrirNuevaPartida() {
         // Aquí abrimos la GUI del juego

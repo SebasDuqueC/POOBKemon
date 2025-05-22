@@ -19,6 +19,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Clase principal de la interfaz gráfica de usuario (GUI) para el juego POOBkemon.
+ * Esta clase extiende JFrame y se encarga de gestionar la visualización y la interacción
+ * del usuario con los elementos del juego, como los Pokémon, movimientos, ítems y la batalla.
+
+ * Funcionalidades principales:
+ * - Mostrar información de los Pokémon del jugador y del rival.
+ * - Permitir al jugador realizar movimientos, cambiar Pokémon o usar ítems.
+ * - Gestionar el flujo de la batalla, incluyendo turnos y temporizador.
+ * - Guardar y cargar partidas.
+ * - Mostrar el resultado de la batalla.
+ */
+
 public class PoobkemonGUI extends JFrame {
 
     private Batalla batalla;
@@ -53,7 +66,6 @@ public class PoobkemonGUI extends JFrame {
     private static final int TIEMPO_TURNO = 20; // 20 segundos por turno
 
     public String modoJuego;
-    // Nueva variable para el modo de juego
     private OpcionesPanelEsmeralda panelOpciones;
     private InfoPanelEsmeralda infoRival;
     private InfoPanelEsmeralda infoJugador;
@@ -61,13 +73,22 @@ public class PoobkemonGUI extends JFrame {
     private JPanel panelJugador;
     private JPanel panelCentral;
 
+    /**
+     * Constructor de la clase `PoobkemonGUI`.
+     * Inicializa la interfaz gráfica para el combate de POOBkemon.
+     *
+     * @param entrenador1 El primer entrenador participante en la batalla.
+     * @param entrenador2 El segundo entrenador participante en la batalla.
+     * @param modo        El modo de juego seleccionado (Normal o Supervivencia).
+     */
+
     public PoobkemonGUI(Entrenador entrenador1, Entrenador entrenador2, String modo) {
         setTitle("POOBkemon - Combate");
         setSize(1000, 700);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
-        setUndecorated(true); // Sin bordes
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(true);
         this.entrenador1 = entrenador1;
         this.entrenador2 = entrenador2;
         this.batalla = new Batalla(entrenador1, entrenador2);
@@ -76,9 +97,8 @@ public class PoobkemonGUI extends JFrame {
         initGUI();
         mostrarLanzamientoMoneda();
 
-        // Añadir mensaje informativo para el modo supervivencia
         if ("Supervivencia".equals(modoJuego)) {
-            areaLog.setText(""); // Limpiar log anterior
+            areaLog.setText("");
             areaLog.append("¡Bienvenido al MODO SUPERVIVENCIA!\n");
             areaLog.append("--------------------------------\n");
             areaLog.append("• Cada entrenador recibe 6 Pokémon aleatorios al nivel 100\n");
@@ -95,9 +115,18 @@ public class PoobkemonGUI extends JFrame {
         });
     }
 
+    /**
+     * Ajusta los componentes de un contenedor en función del tamaño de la ventana.
+     * Este método escala uniformemente los componentes dentro del contenedor
+     * para adaptarse al tamaño actual de la ventana, manteniendo una proporción
+     * basada en un ancho y alto de referencia.
+     *
+     * @param container El contenedor cuyos componentes se ajustarán.
+     * @param ventana   Las dimensiones actuales de la ventana.
+     */
     private void ajustarComponentes(Container container, Dimension ventana) {
-        int baseWidth = 1000; // Ancho base de referencia
-        int baseHeight = 700; // Altura base de referencia
+        int baseWidth = 1000;
+        int baseHeight = 700;
 
         double scaleX = ventana.getWidth() / baseWidth;
         double scaleY = ventana.getHeight() / baseHeight;
@@ -115,6 +144,12 @@ public class PoobkemonGUI extends JFrame {
         container.repaint();
     }
 
+
+    /**
+     * Inicializa la interfaz gráfica de usuario (GUI) para el combate de POOBkemon.
+     * Este método configura los paneles principales, los controles, y los elementos
+     * visuales necesarios para la interacción del usuario durante la batalla.
+     */
     private void initGUI() {
         panelPrincipal = new JPanel(new BorderLayout());
 
@@ -124,7 +159,7 @@ public class PoobkemonGUI extends JFrame {
         panelPokemonRival.setOpaque(true); // Asegurarse de que el fondo sea visible
 
 
-// Configurar el panel de información del rival
+        // Configurar el panel de información del rival
         JPanel panelInfoRival = new JPanel();
         panelInfoRival.setLayout(new BoxLayout(panelInfoRival, BoxLayout.Y_AXIS));
         panelInfoRival.setBackground(new Color(175, 239, 142)); // Verde pasto
@@ -144,8 +179,7 @@ public class PoobkemonGUI extends JFrame {
         panelInfoRival.add(lblPSRival);
 
 
-
-// Crear un JPanel con fondo para el JLabel
+        // Crear un JPanel con fondo para el JLabel
         JPanel panelConFondo = new JPanel() {
             private Image backgroundImage;
 
@@ -168,47 +202,44 @@ public class PoobkemonGUI extends JFrame {
             }
         };
         panelConFondo.setLayout(new BorderLayout());
-        panelConFondo.setBackground(new Color(124, 252, 0)); // Verde pasto
+        panelConFondo.setBackground(new Color(124, 252, 0));
         panelConFondo.setOpaque(true); // Asegurarse de que el fondo sea visible
 
-// Imagen del Pokémon rival
+        // Imagen del Pokémon rival
         lblImagenPokemonRival = new JLabel();
         lblImagenPokemonRival.setPreferredSize(new Dimension(200, 200));
-        lblImagenPokemonRival.setBounds(50, 100, 200, 200); // Mover más a la izquierda//
+        lblImagenPokemonRival.setBounds(50, 100, 200, 200);
         lblImagenPokemonRival.setHorizontalAlignment(SwingConstants.CENTER);
 
 
-// Crear un JPanel para ajustar la posición del GIF
+        // Crear un JPanel para ajustar la posición del GIF
         JPanel panelAjuste = new JPanel(new BorderLayout());
         panelAjuste.setOpaque(false); // Hacer el panel transparente
-        panelAjuste.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // Menor margen a la izquierda
+        panelAjuste.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
 
-// Añadir el JLabel al panel de ajuste
-        lblImagenPokemonRival.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // Menor margen a la izquierda
+        // Añadir el JLabel al panel de ajuste
+        lblImagenPokemonRival.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         panelAjuste.add(lblImagenPokemonRival, BorderLayout.CENTER);
 
-// Añadir el panel de ajuste al panel con fondo
+        // Añadir el panel de ajuste al panel con fondo
         panelConFondo.add(panelAjuste, BorderLayout.CENTER);
 
-// Añadir el panel con fondo al panel principal
+        // Añadir el panel con fondo al panel principal
         panelPokemonRival.add(panelInfoRival, BorderLayout.EAST);
         panelPokemonRival.add(panelConFondo, BorderLayout.CENTER);
 
         // Panel central: área de mensajes
         areaLog = new JTextArea(5, 40);
         areaLog.setEditable(false);
-        areaLog.setBackground(new Color(90, 207, 113)); // Verde pasto
-        areaLog.setOpaque(true); // Asegurarse de que el fondo sea visible
-        // Cargar y aplicar la fuente personalizada
+        areaLog.setBackground(new Color(90, 207, 113));
+        areaLog.setOpaque(true);
         try {
-            // Cargar la fuente desde los recursos
-            // Cargar la fuente desde los recursos
             InputStream fontStream = getClass().getClassLoader().getResourceAsStream("main/resources/font/PressStart2P.ttf");
             if (fontStream == null) {
                 throw new IOException("No se encontró el archivo de fuente: PressStart2P.ttf");
             }
             Font pressStartFont = Font.createFont(Font.TRUETYPE_FONT, fontStream);
-            pressStartFont = pressStartFont.deriveFont(Font.PLAIN, 12); // Tamaño de fuente 12
+            pressStartFont = pressStartFont.deriveFont(Font.PLAIN, 12);
             areaLog.setFont(pressStartFont);
         } catch (FontFormatException | IOException e) {
             System.err.println("Error al cargar la fuente PressStart2P: " + e.getMessage());
@@ -219,7 +250,7 @@ public class PoobkemonGUI extends JFrame {
         // Panel inferior: Pokémon del jugador (ahora con imagen)
         panelPokemonJugador = new JPanel(new BorderLayout());
         panelPokemonJugador.setBorder(BorderFactory.createEmptyBorder());
-        panelPokemonJugador.setOpaque(true); // Asegurarse de que el fondo sea visible
+        panelPokemonJugador.setOpaque(true);
 
         JPanel panelInfoJugador = new JPanel();
         panelInfoJugador.setLayout(new BoxLayout(panelInfoJugador, BoxLayout.Y_AXIS));
@@ -232,7 +263,7 @@ public class PoobkemonGUI extends JFrame {
         lblPSJugador = new JLabel("PS: 100/100");
         lblPSJugador.setFont(new Font("Press Start 2P", Font.BOLD, 16));
 
-        lblPSJugador.setForeground(Color.BLACK); // Letras negras
+        lblPSJugador.setForeground(Color.BLACK);
 
 
         panelInfoJugador.add(lblNombreJugador);
@@ -241,7 +272,6 @@ public class PoobkemonGUI extends JFrame {
         // Crear un JPanel con fondo para el JLabel
         JPanel panelConFondoJugador = new JPanel() {
             private Image backgroundImage;
-
             {
                 try {
                     // Cargar la imagen de fondo
@@ -260,32 +290,32 @@ public class PoobkemonGUI extends JFrame {
                 }
             }
         };
-        panelConFondo.setBackground(new Color(90, 207, 113)); // Verde pasto
-        panelConFondo.setOpaque(true); // Asegurarse de que el fondo sea visible
+        panelConFondo.setBackground(new Color(90, 207, 113));
+        panelConFondo.setOpaque(true);
 
-// Imagen del Pokémon del jugador
+        // Imagen del Pokémon del jugador
         lblImagenPokemonJugador = new JLabel();
         lblImagenPokemonJugador.setPreferredSize(new Dimension(200, 200));
         lblImagenPokemonJugador.setHorizontalAlignment(SwingConstants.CENTER);
 
-// Crear un JPanel para ajustar la posición del GIF
+        // Crear un JPanel para ajustar la posición del GIF
         JPanel panelAjusteJugador = new JPanel(new BorderLayout());
         panelAjusteJugador.setOpaque(false); // Hacer el panel transparente
-        panelAjusteJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120)); // Mayor margen a la derecha
+        panelAjusteJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120));
 
-// Añadir el JLabel al panel de ajuste en la posición izquierda
-        lblImagenPokemonJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120)); // Mayor margen a la derecha
+        // Añadir el JLabel al panel de ajuste en la posición izquierda
+        lblImagenPokemonJugador.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 120));
         panelAjusteJugador.add(lblImagenPokemonJugador, BorderLayout.CENTER);
 
-// Añadir el panel de ajuste al panel con fondo
+        // Añadir el panel de ajuste al panel con fondo
         panelConFondoJugador.add(panelAjusteJugador, BorderLayout.CENTER);
 
-// Añadir el panel con fondo al panel principal
+        // Añadir el panel con fondo al panel principal
         panelPokemonJugador.add(panelInfoJugador, BorderLayout.WEST);
         panelPokemonJugador.add(panelConFondoJugador, BorderLayout.CENTER);
 
-        panelConFondo.setBackground(new Color(90, 207, 113)); // Verde pasto
-        panelConFondo.setOpaque(true); // Asegurarse de que el fondo sea visible
+        panelConFondo.setBackground(new Color(90, 207, 113));
+        panelConFondo.setOpaque(true);
 
         // Controles: movimientos, cambio de pokémon, items
         panelControles = new JPanel(new CardLayout());
@@ -297,7 +327,7 @@ public class PoobkemonGUI extends JFrame {
         for (int i = 0; i < btnMovimientos.length; i++) {
             final int index = i;
             btnMovimientos[i] = new JButton("Movimiento " + (i + 1));
-            btnMovimientos[i].setBackground(new Color(245, 245, 220)); // Color hueso
+            btnMovimientos[i].setBackground(new Color(245, 245, 220));
             btnMovimientos[i].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     realizarMovimiento(index);
@@ -342,21 +372,21 @@ public class PoobkemonGUI extends JFrame {
         JPanel panelNavegacion = new JPanel(new GridLayout(1, 3));
 
         JButton btnVerMovimientos = new JButton("Movimientos");
-        btnVerMovimientos.setBackground(new Color(245, 245, 220)); // Color hueso
+        btnVerMovimientos.setBackground(new Color(245, 245, 220));
         btnVerMovimientos.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "movimientos");
         });
 
         JButton btnVerPokemones = new JButton("Pokémon");
-        btnVerPokemones.setBackground(new Color(245, 245, 220)); // Color hueso
+        btnVerPokemones.setBackground(new Color(245, 245, 220));
         btnVerPokemones.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
             cl.show(panelControles, "pokemones");
         });
 
         JButton btnVerItems = new JButton("Items");
-        btnVerItems.setBackground(new Color(245, 245, 220)); // Color hueso
+        btnVerItems.setBackground(new Color(245, 245, 220));
 
         btnVerItems.addActionListener(e -> {
             CardLayout cl = (CardLayout) panelControles.getLayout();
@@ -376,18 +406,18 @@ public class PoobkemonGUI extends JFrame {
         JPanel panelAcciones = new JPanel(new GridLayout(1, 3, 10, 0));
 
         btnGuardar = new JButton("Guardar Partida");
-        btnGuardar.setBackground(new Color(245, 245, 220)); // Color hueso
-        btnGuardar.setForeground(Color.BLACK); // Texto en negro
+        btnGuardar.setBackground(new Color(245, 245, 220));
+        btnGuardar.setForeground(Color.BLACK);
         btnGuardar.addActionListener(e -> guardarPartida());
         panelAcciones.add(btnGuardar);
 
         btnCargar = new JButton("Cargar Partida");
         btnCargar.setBackground(new Color(245, 245, 220)); // Color hueso
-        btnCargar.setForeground(Color.BLACK); // Texto en negro
+        btnCargar.setForeground(Color.BLACK);
         btnCargar.addActionListener(e -> cargarPartida());
         panelAcciones.add(btnCargar);
 
-        // --- Nuevo botón Huir ---
+        //botón Huir
         JButton btnHuir = new JButton("Huir");
         btnHuir.setBackground(new Color(245, 245, 220));
         btnHuir.setForeground(Color.BLACK);
@@ -405,7 +435,6 @@ public class PoobkemonGUI extends JFrame {
         });
         panelAcciones.add(btnHuir);
 
-        // Aplicar la fuente personalizada
         try {
             InputStream fontStream = getClass().getClassLoader().getResourceAsStream("main/resources/font/PressStart2P.ttf");
             if (fontStream == null) {
@@ -453,10 +482,29 @@ public class PoobkemonGUI extends JFrame {
         cl.show(panelControles, "movimientos");
     }
 
+    /**
+     * Muestra un panel específico dentro del contenedor central utilizando un `CardLayout`.
+     * Este método permite cambiar entre diferentes vistas o paneles de acción
+     * en la interfaz gráfica, según el identificador proporcionado.
+     *
+     * @param accion El nombre del panel que se desea mostrar. Este nombre debe coincidir
+     * con el identificador registrado en el `CardLayout` del contenedor central.
+     */
+
     private void mostrarPanelAccion(String accion) {
         CardLayout cl = (CardLayout) panelCentral.getLayout();
         cl.show(panelCentral, accion);
     }
+
+    /**
+     * Crea un panel que contiene los botones de los movimientos disponibles
+     * para el Pokémon activo del jugador.
+     *
+     * El panel utiliza un diseño de cuadrícula (GridLayout) con 2 filas y 2 columnas,
+     * y un espacio de 10 píxeles entre los componentes, tanto horizontal como verticalmente.
+     *
+     * @return Un `JPanel` configurado con los botones de los movimientos.
+     */
 
     private JPanel crearPanelMovimientos() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -472,6 +520,16 @@ public class PoobkemonGUI extends JFrame {
         return panel;
     }
 
+    /**
+     * Crea un panel que contiene los botones de los Pokémon disponibles
+     * para el jugador. Cada botón representa un Pokémon del equipo del jugador.
+     *
+     * El panel utiliza un diseño de cuadrícula (GridLayout) con 3 filas y 2 columnas,
+     * y un espacio de 10 píxeles entre los componentes, tanto horizontal como verticalmente.
+     *
+     * @return Un `JPanel` configurado con los botones de los Pokémon.
+     */
+
     private JPanel crearPanelPokemones() {
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
         panel.setOpaque(false);
@@ -485,6 +543,17 @@ public class PoobkemonGUI extends JFrame {
         }
         return panel;
     }
+
+
+    /**
+     * Crea un panel que contiene los botones de los ítems disponibles
+     * para el jugador. Cada botón representa un ítem del inventario del jugador.
+     *
+     * El panel utiliza un diseño de cuadrícula (GridLayout) con 2 filas y 2 columnas,
+     * y un espacio de 10 píxeles entre los componentes, tanto horizontal como verticalmente.
+     *
+     * @return Un `JPanel` configurado con los botones de los ítems.
+     */
 
     private JPanel crearPanelItems() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -500,31 +569,49 @@ public class PoobkemonGUI extends JFrame {
         return panel;
     }
 
-    // Método para cargar y mostrar el GIF del Pokémon activo
+
+    /**
+     * Muestra un GIF animado correspondiente al Pokémon activo en un JLabel.
+     * Este método busca el archivo GIF del Pokémon por su nombre, lo carga
+     * y lo establece como el contenido del JLabel proporcionado.
+     *
+     * @param label         El JLabel donde se mostrará el GIF del Pokémon.
+     * @param nombrePokemon El nombre del Pokémon cuyo GIF se desea mostrar.
+     */
+
     private void mostrarGifPokemonActivo(JLabel label, String nombrePokemon) {
         try {
-            // Construir la ruta del archivo GIF
             String nombreArchivo = nombrePokemon.toLowerCase() + ".gif";
             ImageIcon gifPokemon = new ImageIcon(Objects.requireNonNull(
                     getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
 
-            // Establecer el GIF en el JLabel
             label.setIcon(gifPokemon);
-            label.setText(""); // Limpiar texto si lo hubiera
+            label.setText("");
         } catch (Exception e) {
             System.err.println("No se pudo cargar el GIF para " + nombrePokemon + ": " + e.getMessage());
             label.setIcon(null);
-            label.setText("[ " + nombrePokemon + " ]"); // Mostrar texto si no se encuentra el GIF
+            label.setText("[ " + nombrePokemon + " ]");
         }
     }
 
-    // Actualizar el GIF del Pokémon activo
+
+    /**
+     * Actualiza el Pokémon activo del entrenador que tiene el turno actual en la batalla.
+     * Este método obtiene el entrenador activo de la batalla y actualiza la información
+     * del Pokémon que está actualmente en combate.
+     */
+
     private void actualizarPokemonActivo() {
         Entrenador entrenadorActivo = batalla.getTurnoActual();
         Pokemon pokemonActivo = entrenadorActivo.getActivo();
         if (pokemonActivo != null) {
             mostrarGifPokemonActivo(lblImagenPokemonJugador, pokemonActivo.getNombre());        }
     }
+
+    /**
+     * Inicia el temporizador para el turno actual.
+     * Si ya existe un temporizador en ejecución, lo detiene antes de iniciar uno nuevo.
+     */
 
     private void iniciarTimerTurno() {
         if (timerTurno != null) {
@@ -558,6 +645,14 @@ public class PoobkemonGUI extends JFrame {
         timerTurno.start(); // Iniciar el Timer
     }
 
+    /**
+     * Realiza un movimiento seleccionado por el jugador o la IA durante la batalla.
+     * Este método ejecuta el movimiento correspondiente al índice proporcionado,
+     * actualiza el estado de la batalla y verifica si hay un ganador.
+     *
+     * @param index El índice del movimiento a realizar (0 a 3).
+     */
+
     private void realizarMovimiento(int index) {
         try {
             Entrenador turnoActual = batalla.getTurnoActual();
@@ -573,10 +668,8 @@ public class PoobkemonGUI extends JFrame {
                 return;
             }
 
-            // Verificar si el Pokémon actual quedó deshabilitado
             verificarPokemonDeshabilitado(turnoActual);
 
-            // Si es el turno de una IA, ejecutar automáticamente
             if (!batalla.getTurnoActual().esHumano()) {
                 ejecutarTurnoIA();
             }
@@ -588,12 +681,19 @@ public class PoobkemonGUI extends JFrame {
         }
     }
 
+    /**
+     * Verifica si el Pokémon activo de un entrenador está debilitado.
+     * Si el Pokémon está debilitado, se puede realizar una acción adicional
+     * como buscar un reemplazo en el equipo del entrenador.
+     *
+     * @param entrenador El entrenador cuyo Pokémon activo será verificado.
+     */
+
     private void verificarPokemonDeshabilitado(Entrenador entrenador) {
         Pokemon pokemonActual = entrenador.getActivo();
         if (pokemonActual.estaDebilitado()) {
             areaLog.append(pokemonActual.getNombre() + " ha quedado deshabilitado.\n");
 
-            // Buscar el siguiente Pokémon disponible
             List<Pokemon> equipo = entrenador.getPokemones();
             int siguienteIndex = -1;
 
@@ -612,7 +712,6 @@ public class PoobkemonGUI extends JFrame {
                     areaLog.append("Error al cambiar de Pokémon: " + e.getMessage() + "\n");
                 }
             } else {
-                // Si no hay más Pokémon disponibles, el otro entrenador gana
                 areaLog.append("¡" + entrenador.getNombre() + " no tiene más Pokémon disponibles!\n");
                 if (entrenador == entrenador1) {
                     areaLog.append("¡" + entrenador2.getNombre() + " ha ganado el combate!\n");
@@ -625,6 +724,21 @@ public class PoobkemonGUI extends JFrame {
             }
         }
     }
+
+    /**
+     * Ejecuta el turno de la IA (Inteligencia Artificial) durante la batalla.
+     * Este método verifica si el entrenador actual es una instancia de `EntrenadorIA`.
+     * Si es así, la IA decide una acción (movimiento o uso de ítem) y la ejecuta.
+     *
+     * Acciones posibles:
+     * - Si la acción es un movimiento, se ejecuta el movimiento correspondiente.
+     * - Si la acción es el uso de un ítem, se aplica el ítem al Pokémon activo.
+     *
+     * Después de ejecutar la acción, se actualiza la interfaz y se inicia el temporizador
+     * para el siguiente turno.
+     *
+     * @throws PoobkemonException Si ocurre un error al ejecutar el movimiento o usar un ítem.
+     */
 
     private void ejecutarTurnoIA() {
         try {
@@ -687,23 +801,30 @@ public class PoobkemonGUI extends JFrame {
                 actualizarInterfaz();
                 iniciarTimerTurno();
             } else {
-                // Si sigue siendo IA, intentar de nuevo
                 ejecutarTurnoIA();
             }
         }
     }
 
+    /**
+     * Cambia el Pokémon activo del entrenador que tiene el turno actual.
+     * Este método permite al entrenador seleccionar un nuevo Pokémon de su equipo
+     * para que sea el Pokémon activo en la batalla.
+     *
+     * @param index El índice del Pokémon en el equipo del entrenador que se desea activar.
+     * @throws PoobkemonException Si ocurre un error al intentar cambiar el Pokémon,
+     *                             como seleccionar un Pokémon debilitado o un índice inválido.
+     */
+
     private void cambiarPokemon(int index) {
         try {
             Entrenador turnoActual = batalla.getTurnoActual();
 
-            // Cambiar el Pokémon del entrenador actual
             turnoActual.cambiarPokemon(index);
             areaLog.append(turnoActual.getNombre() + " cambió a " + turnoActual.getActivo().getNombre() + "\n");
 
-            batalla.cambiarTurno(); // Cambiar turno después de la acción
+            batalla.cambiarTurno();
 
-            // Si ahora es el turno de la IA, ejecutar automáticamente
             if (!batalla.getTurnoActual().esHumano()) {
                 ejecutarTurnoIA();
             }
@@ -714,6 +835,15 @@ public class PoobkemonGUI extends JFrame {
             areaLog.append("Error: " + e.getMessage() + "\n");
         }
     }
+
+    /**
+     * Usa un ítem del inventario del entrenador que tiene el turno actual.
+     * Este método permite aplicar el efecto de un ítem al Pokémon activo del entrenador.
+     *
+     * @param index El índice del ítem en el inventario del entrenador que se desea usar.
+     * @throws PoobkemonException Si ocurre un error al usar el ítem, como que no esté disponible
+     *                            o que el índice sea inválido.
+     */
 
     private void usarItem(int index) {
         try {
@@ -726,9 +856,8 @@ public class PoobkemonGUI extends JFrame {
                 areaLog.append(turnoActual.getNombre() + " usó " + item.getNombre() +
                               " en " + turnoActual.getActivo().getNombre() + "\n");
 
-                batalla.cambiarTurno(); // Cambiar turno después de la acción
+                batalla.cambiarTurno();
 
-                // Si ahora es el turno de la IA, ejecutar automáticamente
                 if (!batalla.getTurnoActual().esHumano()) {
                     ejecutarTurnoIA();
                 }
@@ -740,6 +869,12 @@ public class PoobkemonGUI extends JFrame {
             areaLog.append("Error: " + e.getMessage() + "\n");
         }
     }
+
+    /**
+     * Muestra el lanzamiento de una moneda para decidir quién comienza el combate.
+     * Durante el lanzamiento, todos los controles de la interfaz se deshabilitan.
+     * El resultado del lanzamiento se mostrará en el área de logs.
+     */
 
     private void mostrarLanzamientoMoneda() {
         // Deshabilitar todos los controles durante el lanzamiento
@@ -793,33 +928,58 @@ public class PoobkemonGUI extends JFrame {
         });
     }
 
+    /**
+     * Deshabilita los controles de la interfaz gráfica.
+     * Este método desactiva los botones de los paneles de opciones y de acción
+     * (movimientos, cambio de Pokémon e ítems) si estos existen.
+     *
+     * Es útil para evitar que el usuario interactúe con la interfaz en momentos
+     * donde no se permite realizar acciones, como durante el lanzamiento de moneda
+     * o entre turnos.
+     */
+
     private void deshabilitarControles() {
-        // Deshabilitar botones del panel de opciones si existen
         if (panelOpciones != null) {
             panelOpciones.btnLucha.setEnabled(false);
             panelOpciones.btnMochila.setEnabled(false);
             panelOpciones.btnPokemon.setEnabled(false);
             panelOpciones.btnHuir.setEnabled(false);
         }
-        // Deshabilitar botones de los paneles de acción si existen
         deshabilitarBotonesEnPanel(panelMovimientos);
         deshabilitarBotonesEnPanel(panelPokemones);
         deshabilitarBotonesEnPanel(panelItems);
     }
 
+
+    /**
+     * Habilita los controles de la interfaz gráfica.
+     * Este método activa los botones de los paneles de opciones y de acción
+     * (movimientos, cambio de Pokémon e ítems) si estos existen.
+     *
+     * Es útil para permitir que el usuario interactúe con la interfaz
+     * después de momentos en los que los controles estaban deshabilitados,
+     * como al inicio de un turno o después de una acción específica.
+     */
+
     private void habilitarControles() {
-        // Habilitar botones del panel de opciones si existen
         if (panelOpciones != null) {
             panelOpciones.btnLucha.setEnabled(true);
             panelOpciones.btnMochila.setEnabled(true);
             panelOpciones.btnPokemon.setEnabled(true);
             panelOpciones.btnHuir.setEnabled(true);
         }
-        // Habilitar botones de los paneles de acción si existen
         habilitarBotonesEnPanel(panelMovimientos);
         habilitarBotonesEnPanel(panelPokemones);
         habilitarBotonesEnPanel(panelItems);
     }
+
+    /**
+     * Deshabilita todos los botones dentro de un panel dado.
+     * Este método recorre los componentes del panel y, si encuentra botones,
+     * los desactiva para evitar que el usuario interactúe con ellos.
+     *
+     * @param panel El panel cuyos botones se desean deshabilitar. Si el panel es nulo, no se realiza ninguna acción.
+     */
 
     private void deshabilitarBotonesEnPanel(JPanel panel) {
         if (panel != null) {
@@ -831,6 +991,14 @@ public class PoobkemonGUI extends JFrame {
         }
     }
 
+    /**
+     * Habilita todos los botones dentro de un panel dado.
+     * Este método recorre los componentes del panel y, si encuentra botones,
+     * los activa para permitir la interacción del usuario.
+     *
+     * @param panel El panel cuyos botones se desean habilitar. Si el panel es nulo, no se realiza ninguna acción.
+     */
+
     private void habilitarBotonesEnPanel(JPanel panel) {
         if (panel != null) {
             for (Component c : panel.getComponents()) {
@@ -840,6 +1008,13 @@ public class PoobkemonGUI extends JFrame {
             }
         }
     }
+
+    /**
+     * Actualiza la interfaz gráfica de usuario con la información más reciente
+     * de los Pokémon del jugador y del rival. Este método también actualiza
+     * los GIFs correspondientes y muestra los puntos de salud (PS) actuales
+     * de cada Pokémon.
+     */
 
     private void actualizarInterfaz() {
         // Actualizar información del Pokémon del jugador
@@ -935,6 +1110,15 @@ public class PoobkemonGUI extends JFrame {
 
     }
 
+    /**
+     * Método principal de la aplicación.
+     * Este método inicializa el menú principal del juego POOBkemon.
+     * Se ejecuta en el hilo de eventos de Swing para garantizar
+     * que la interfaz gráfica se configure correctamente.
+     *
+     * @param args Argumentos de línea de comandos (no utilizados en esta aplicación).
+     */
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             PoobkemonMainMenu menu = null;
@@ -948,7 +1132,17 @@ public class PoobkemonGUI extends JFrame {
             menu.setVisible(true);
         });
     }
-    // Método para guardar partida
+
+    /**
+     * Guarda el estado actual de la partida en un archivo.
+     * Este método abre un cuadro de diálogo para que el usuario seleccione
+     * la ubicación y el nombre del archivo donde se guardará la partida.
+     * El archivo se guarda con la extensión `.pkm`.
+     *
+     * Si ocurre un error durante el proceso de guardado, se muestra un mensaje
+     * de error al usuario.
+     */
+
     private void guardarPartida() {
     try {
         JFileChooser fileChooser = new JFileChooser();
@@ -989,7 +1183,18 @@ public class PoobkemonGUI extends JFrame {
     }
     }
 
-    // Método para cargar partida
+    /**
+     * Carga el estado de una partida previamente guardada desde un archivo.
+     * Este método abre un cuadro de diálogo para que el usuario seleccione
+     * el archivo de partida con extensión `.pkm` que desea cargar.
+     *
+     * Si el archivo es válido, se restaura el estado del juego, incluyendo
+     * los entrenadores, la batalla y el turno actual.
+     *
+     * Si ocurre un error durante el proceso de carga, se muestra un mensaje
+     * de error al usuario.
+     */
+
     private void cargarPartida() {
     try {
         JFileChooser fileChooser = new JFileChooser();
@@ -1030,11 +1235,22 @@ public class PoobkemonGUI extends JFrame {
     }
     }
 
-    // Clase interna para el fondo de batalla estilo Pokémon Esmeralda
+    /**
+     * Clase `BattleBackgroundPanel` que extiende `JPanel`.
+     * Esta clase permite personalizar el fondo del panel con una imagen.
+     * Es utilizada para mostrar un fondo gráfico en la interfaz de batalla.
+     */
+
     class BattleBackgroundPanel extends JPanel {
     private Image backgroundImage;
     private JLabel pokemonLabel;
 
+    /**
+     * Constructor de la clase `BattleBackgroundPanel`.
+     * Este constructor inicializa un panel con un fondo personalizado y una imagen de un Pokémon.
+     *
+     * @param pokemonImage La imagen del Pokémon que se mostrará en el panel.
+     */
     public BattleBackgroundPanel(ImageIcon pokemonImage) {
         try {
             backgroundImage = new ImageIcon(Objects.requireNonNull(
@@ -1048,12 +1264,10 @@ public class PoobkemonGUI extends JFrame {
         setBackground(Color.BLACK); // Fondo negro
 
 
-        // Configurar el JLabel para el Pokémon
         pokemonLabel = new JLabel(pokemonImage);
         pokemonLabel.setHorizontalAlignment(SwingConstants.RIGHT); // Alinear a la derecha
         pokemonLabel.setVerticalAlignment(SwingConstants.TOP); // Alinear en la parte superior
 
-        // Añadir el JLabel al panel
         add(pokemonLabel, BorderLayout.EAST);
     }
 
@@ -1066,22 +1280,39 @@ public class PoobkemonGUI extends JFrame {
     }
     }
 
-    // --- Agregar aquí el método mostrarVentanaGanador ---
+    /**
+     * Muestra una ventana emergente con información del ganador de la batalla.
+     * Este método crea un panel personalizado para mostrar el nombre del entrenador ganador
+     * y cualquier otra información relevante sobre el resultado de la batalla.
+     *
+     * @param ganador El entrenador que ganó la batalla.
+     */
+
     private void mostrarVentanaGanador(Entrenador ganador) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setPreferredSize(new Dimension(350, 600));
+        panel.setBackground(new Color(255, 223, 0)); // Fondo dorado
+
+        Font fuentePersonalizada = new Font("Press Start 2P", Font.BOLD, 14);
+
         JLabel titulo = new JLabel("¡GANADOR DE LA BATALLA!");
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titulo.setFont(fuentePersonalizada.deriveFont(18f));
+        titulo.setForeground(Color.BLACK); // Texto en negro
         panel.add(titulo);
 
         JLabel nombre = new JLabel(ganador.getNombre());
         nombre.setAlignmentX(Component.CENTER_ALIGNMENT);
+        nombre.setFont(fuentePersonalizada.deriveFont(16f));
+        nombre.setForeground(Color.BLACK); // Texto en negro
         panel.add(nombre);
 
         panel.add(Box.createVerticalStrut(10));
         JLabel subtitulo = new JLabel("Pokémon sobrevivientes:");
         subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subtitulo.setFont(fuentePersonalizada);
+        subtitulo.setForeground(Color.BLACK); // Texto en negro
         panel.add(subtitulo);
 
         boolean haySobrevivientes = false;
@@ -1091,12 +1322,13 @@ public class PoobkemonGUI extends JFrame {
                 JPanel pokePanel = new JPanel();
                 pokePanel.setLayout(new BoxLayout(pokePanel, BoxLayout.Y_AXIS));
                 pokePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                pokePanel.setOpaque(false);
 
                 // Imagen centrada
                 try {
                     String nombreArchivo = p.getNombre().toLowerCase() + ".gif";
                     ImageIcon icon = new ImageIcon(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
+                            getClass().getClassLoader().getResource("main/resources/images/" + nombreArchivo)));
                     Image img = icon.getImage().getScaledInstance(96, 96, Image.SCALE_DEFAULT);
                     icon = new ImageIcon(img);
                     JLabel imgLabel = new JLabel(icon);
@@ -1105,15 +1337,16 @@ public class PoobkemonGUI extends JFrame {
                 } catch (Exception e) {
                     JLabel imgLabel = new JLabel("[?]");
                     imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    imgLabel.setFont(fuentePersonalizada);
                     pokePanel.add(imgLabel);
                 }
 
                 JLabel nombreLabel = new JLabel(p.getNombre());
                 nombreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-                nombreLabel.setFont(nombreLabel.getFont().deriveFont(Font.BOLD, 16f));
+                nombreLabel.setFont(fuentePersonalizada.deriveFont(16f));
+                nombreLabel.setForeground(Color.BLACK); // Texto en negro
                 pokePanel.add(nombreLabel);
 
-                pokePanel.setOpaque(false);
                 panel.add(pokePanel);
                 panel.add(Box.createVerticalStrut(10));
             }
@@ -1122,15 +1355,23 @@ public class PoobkemonGUI extends JFrame {
         if (!haySobrevivientes) {
             JLabel ninguno = new JLabel("Ningún Pokémon sobrevivió.");
             ninguno.setAlignmentX(Component.CENTER_ALIGNMENT);
+            ninguno.setFont(fuentePersonalizada);
+            ninguno.setForeground(Color.BLACK); // Texto en negro
             panel.add(ninguno);
         }
 
         JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setPreferredSize(new Dimension(370, 650));
+        scrollPane.setPreferredSize(new Dimension(500, 900));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(218, 165, 32), 5)); // Borde dorado
         JOptionPane.showMessageDialog(this, scrollPane, "¡Victoria!", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Panel de información estilo Esmeralda para un Pokémon
+    /**
+     * Clase `InfoPanelEsmeralda` que extiende `JPanel`.
+     * Esta clase representa un panel de información con un diseño personalizado.
+     * Es utilizada para mostrar información específica en la interfaz gráfica.
+     */
+
     class InfoPanelEsmeralda extends JPanel {
     private JLabel lblNombre;
     private JLabel lblNivel;
@@ -1139,6 +1380,20 @@ public class PoobkemonGUI extends JFrame {
     private JLabel lblPS;
     private boolean mostrarPS;
 
+    /**
+     * Constructor de la clase `InfoPanelEsmeralda`.
+     * Este constructor inicializa un panel de información personalizado con detalles
+     * sobre un Pokémon, como su nombre, nivel, puntos de salud (PS), experiencia, y
+     * si se deben mostrar los PS en la interfaz.
+     *
+     * @param nombre    El nombre del Pokémon.
+     * @param nivel     El nivel del Pokémon.
+     * @param psActual  Los puntos de salud actuales del Pokémon.
+     * @param psMax     Los puntos de salud máximos del Pokémon.
+     * @param expActual La experiencia actual del Pokémon.
+     * @param expMax    La experiencia máxima necesaria para subir de nivel.
+     * @param mostrarPS Indica si se deben mostrar los puntos de salud en la interfaz.
+     */
     public InfoPanelEsmeralda(String nombre, int nivel, int psActual, int psMax, int expActual, int expMax, boolean mostrarPS) {
         setLayout(null);
         setPreferredSize(new Dimension(300, 60));
@@ -1182,6 +1437,20 @@ public class PoobkemonGUI extends JFrame {
         add(barraExp);
     }
 
+
+    /**
+     * Actualiza la información mostrada en el panel con los nuevos datos proporcionados.
+     * Este método permite cambiar el nombre, nivel, puntos de salud (PS), y experiencia
+     * del Pokémon mostrado en el panel, actualizando los componentes gráficos correspondientes.
+     *
+     * @param nombre    El nuevo nombre del Pokémon.
+     * @param nivel     El nuevo nivel del Pokémon.
+     * @param psActual  Los puntos de salud actuales del Pokémon.
+     * @param psMax     Los puntos de salud máximos del Pokémon.
+     * @param expActual La experiencia actual del Pokémon.
+     * @param expMax    La experiencia máxima necesaria para subir de nivel.
+     */
+
     public void actualizar(String nombre, int nivel, int psActual, int psMax, int expActual, int expMax) {
         lblNombre.setText(nombre);
         lblNivel.setText("Nv. " + nivel);
@@ -1195,12 +1464,18 @@ public class PoobkemonGUI extends JFrame {
     }
     }
 
-    // Panel de opciones estilo Esmeralda
+    /**
+     * Clase `OpcionesPanelEsmeralda` que extiende `JPanel`.
+     * Esta clase representa un panel de opciones en la interfaz gráfica,
+     * que incluye botones para realizar diferentes acciones durante el juego.
+     */
+
     class OpcionesPanelEsmeralda extends JPanel {
     public JButton btnLucha = new JButton();
     public JButton btnMochila = new JButton();
     public JButton btnPokemon = new JButton();
     public JButton btnHuir = new JButton();
+
     public OpcionesPanelEsmeralda(String nombrePokemon) {}
     public void setNombrePokemon(String nombre) {}
     }

@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * La clase `PoobkemonConfigWindow` representa la ventana de configuración del juego POOBkemon.
+ * Permite a los jugadores configurar los detalles de la partida antes de iniciarla.
+ */
 
 public class PoobkemonConfigWindow extends JFrame {
 
@@ -27,17 +31,32 @@ public class PoobkemonConfigWindow extends JFrame {
     // NUEVO: Variables de instancia para los entrenadores
     private Entrenador entrenador1;
     private Entrenador entrenador2;
-    
+
+    /**
+     * Constructor de la clase `PoobkemonConfigWindow`.
+     * Inicializa la ventana de configuración del juego POOBkemon,
+     * estableciendo el título de la ventana y configurando sus propiedades básicas.
+     */
 
     public PoobkemonConfigWindow() {
         setTitle("Configuración del Juego - POOBkemon 2025");
         setSize(600, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
-        setUndecorated(true); // Sin bordes
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setUndecorated(true);
         initGUI();
     }
+
+    /**
+     * Inicializa la interfaz gráfica de usuario (GUI) de la ventana de configuración.
+     * Este método configura el diseño general de la ventana, incluyendo un panel de fondo
+     * con una imagen personalizada, un formulario para ingresar los datos de los jugadores,
+     * y botones para iniciar la partida o regresar al menú principal.
+     *
+     * También aplica una fuente personalizada a los componentes y ajusta dinámicamente
+     * los tamaños y posiciones de los elementos cuando la ventana es redimensionada.
+     */
 
     private void initGUI() {
         Font customFont = null;
@@ -48,7 +67,6 @@ public class PoobkemonConfigWindow extends JFrame {
             e.printStackTrace();
         }
 
-        // Panel de fondo con imagen
         ImagePanel backgroundPanel = new ImagePanel("main/resources/images/background3.png") {
             @Override
             public void paintComponent(Graphics g) {
@@ -64,19 +82,16 @@ public class PoobkemonConfigWindow extends JFrame {
         };
         backgroundPanel.setLayout(new GridBagLayout());
 
-        // Panel transparente con layout flexible
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Márgenes uniformes
-        gbc.anchor = GridBagConstraints.CENTER; // Centrar los componentes
-        gbc.weightx = 1.0; // Distribuir horizontalmente
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 1.0;
 
-        // Fuente personalizada
-        Font fuenteGrande = new Font("Arial", Font.BOLD, 25);
+        Font fuenteGrande = new Font("Press Start 2P", Font.BOLD, 25);
 
-        // Componentes
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel lblModoJuego = new JLabel("Modo de Juego:");
@@ -86,7 +101,7 @@ public class PoobkemonConfigWindow extends JFrame {
         gbc.gridx = 1;
         cbModoJuego = new FancyComboBox<>(new String[]{"Normal", "Supervivencia"});
         cbModoJuego.setFont(fuenteGrande);
-        cbModoJuego.setPreferredSize(new Dimension(300, 40)); // Dimensiones iguales a los JTextField
+        cbModoJuego.setPreferredSize(new Dimension(300, 40));
         formPanel.add(cbModoJuego, gbc);
 
         gbc.gridx = 0;
@@ -98,7 +113,7 @@ public class PoobkemonConfigWindow extends JFrame {
         gbc.gridx = 1;
         txtJugador1 = new FancyTextField("Jugador");
         txtJugador1.setFont(fuenteGrande);
-        txtJugador1.setPreferredSize(new Dimension(300, 40)); // Dimensiones más grandes
+        txtJugador1.setPreferredSize(new Dimension(300, 40));
         formPanel.add(txtJugador1, gbc);
 
         gbc.gridx = 0;
@@ -121,7 +136,7 @@ public class PoobkemonConfigWindow extends JFrame {
         gbc.gridx = 1;
         txtJugador2 = new FancyTextField("Rival");
         txtJugador2.setFont(fuenteGrande);
-        txtJugador2.setPreferredSize(new Dimension(300, 40)); // Dimensiones más grandes
+        txtJugador2.setPreferredSize(new Dimension(300, 40));
         formPanel.add(txtJugador2, gbc);
 
         gbc.gridx = 0;
@@ -148,9 +163,9 @@ public class PoobkemonConfigWindow extends JFrame {
                 ex.printStackTrace();
             }
             if (mainMenu != null) {
-                mainMenu.setVisible(true); // Mostrar el menú principal
+                mainMenu.setVisible(true);
             }
-            dispose(); // Cerrar la ventana actual
+            dispose();
         });
         formPanel.add(btnCancelar, gbc);
 
@@ -160,7 +175,6 @@ public class PoobkemonConfigWindow extends JFrame {
         btnIniciar.addActionListener(this::iniciarBatalla);
         formPanel.add(btnIniciar, gbc);
 
-        // Añadir el formulario al panel central
         backgroundPanel.add(formPanel, gbc);
         add(backgroundPanel);
 
@@ -168,12 +182,24 @@ public class PoobkemonConfigWindow extends JFrame {
             @Override
             public void componentResized(ComponentEvent e) {
                 Dimension size = getSize();
-                ajustarComponentes(getContentPane(), size); // Ajusta componentes dinámicamente
+                ajustarComponentes(getContentPane(), size);
             }
         });
 
         setFontToAllComponents(formPanel, customFont);
     }
+
+    /**
+     * Inicia la batalla entre los jugadores configurados en la ventana de configuración.
+     * Este método valida los nombres de los jugadores, verifica el modo de juego seleccionado
+     * y crea los entrenadores correspondientes (humanos o IA) según las opciones elegidas.
+     *
+     * Si el modo de juego es "Supervivencia", se asegura de que ambos jugadores sean humanos
+     * y configura el modo de juego específico. En otros casos, permite la selección de Pokémon
+     * y objetos para los entrenadores humanos, o genera equipos y objetos aleatorios para los entrenadores IA.
+     *
+     * @param e El evento de acción que dispara este método, generalmente un clic en el botón "Iniciar Batalla".
+     */
 
         private void iniciarBatalla(ActionEvent e) {
         String jugador1 = txtJugador1.getText().trim();
@@ -188,9 +214,7 @@ public class PoobkemonConfigWindow extends JFrame {
         boolean esJugador1Humano = cbTipoJugador1.getSelectedIndex() == 0;
         boolean esJugador2Humano = cbTipoJugador2.getSelectedIndex() == 0;
     
-        // Verificar si es modo supervivencia
         if ("Supervivencia".equals(modoJuego)) {
-            // Solo permitir PvP para modo supervivencia
             if (!esJugador1Humano || !esJugador2Humano) {
                 JOptionPane.showMessageDialog(this, 
                     "El modo Supervivencia solo está disponible para partidas entre jugadores humanos (PvP).",
@@ -199,16 +223,13 @@ public class PoobkemonConfigWindow extends JFrame {
             }
             
             try {
-                // Crear el modo supervivencia directamente
                 ModoSupervivenciaPvsP modoSupervivencia = new ModoSupervivenciaPvsP(jugador1, jugador2);
                 entrenador1 = modoSupervivencia.getEntrenador1();
                 entrenador2 = modoSupervivencia.getEntrenador2();
                 
-                // Abrir la pantalla de batalla con los entrenadores generados
                 PoobkemonGUI gui = new PoobkemonGUI(entrenador1, entrenador2, modoJuego);
                 gui.setVisible(true);
                 
-                // Cerrar la ventana de configuración
                 dispose();
                 
             } catch (PoobkemonException ex) {
@@ -217,9 +238,9 @@ public class PoobkemonConfigWindow extends JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
             }
             
-            return; // No continuar con el resto del método
+            return;
         }
-        // --- NUEVO BLOQUE PARA IA ---
+        // NUEVO BLOQUE PARA IA
         List<Pokemon> equipo1 = null;
         List<Pokemon> equipo2 = null;
         List<Item> items1 = null;
@@ -271,8 +292,6 @@ public class PoobkemonConfigWindow extends JFrame {
             return;
         }
         // --- FIN BLOQUE IA ---
-        // Si uno es humano, seguir con la selección manual para ese jugador
-        // Lista de Pokémon disponibles
         List<String> pokemonesDisponibles = PokemonLoader.obtenerNombresDePokemones();
     
         // Selección para el Entrenador 1
@@ -419,9 +438,23 @@ public class PoobkemonConfigWindow extends JFrame {
     }
 
 
-    // Clase FancyButton
+    /**
+     * La clase `FancyButton` extiende `JButton` y proporciona un botón personalizado
+     * con efectos visuales avanzados, como un degradado de fondo y un efecto de hover.
+     * Este botón está diseñado para mejorar la apariencia de la interfaz gráfica
+     * con un diseño moderno y atractivo.
+     */
+
     class FancyButton extends JButton {
         private boolean hover;
+
+        /**
+         * Constructor de la clase `FancyButton`.
+         * Crea un botón personalizado con efectos visuales avanzados, como un degradado de fondo
+         * y un efecto de hover. Este botón está diseñado para mejorar la apariencia de la interfaz gráfica.
+         *
+         * @param text El texto que se mostrará en el botón.
+         */
 
         public FancyButton(String text) {
             super(text);
@@ -430,7 +463,7 @@ public class PoobkemonConfigWindow extends JFrame {
             setOpaque(false);
             setBorderPainted(false);
             setForeground(Color.WHITE); // Color del texto
-            setFont(new Font("Arial", Font.BOLD, 16)); // Fuente personalizada
+            setFont(new Font("Press Start 2P", Font.BOLD, 16));
 
             // Listener para detectar hover
             addMouseListener(new java.awt.event.MouseAdapter() {
@@ -453,7 +486,6 @@ public class PoobkemonConfigWindow extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Degradado de fondo
             GradientPaint gradient = new GradientPaint(0, 0, hover ? new Color(72, 145, 220) : new Color(101, 205, 81),
                     0, getHeight(), hover ? new Color(58, 117, 176) : new Color(72, 145, 220));
             g2.setPaint(gradient);
@@ -464,11 +496,24 @@ public class PoobkemonConfigWindow extends JFrame {
         }
     }
 
-    // Clase FancyTextField
+    /**
+    * La clase `FancyTextField` extiende `JTextField` y proporciona un campo de texto personalizado
+    * con un diseño visual mejorado. Este campo de texto incluye un fondo transparente,
+    * colores personalizados y una fuente específica para mejorar la apariencia de la interfaz gráfica.
+    */
     class FancyTextField extends JTextField {
         private Color backgroundColor = new Color(165, 175, 176 );
         private Color borderColor = new Color(0, 0, 0, 150);
         private Color shadowColor = new Color(255, 255, 255);
+
+        /**
+         * Constructor de la clase `FancyTextField`.
+         * Crea un campo de texto personalizado con un diseño visual mejorado.
+         * Este campo incluye un fondo transparente, colores personalizados y una fuente específica
+         * para mejorar la apariencia de la interfaz gráfica.
+         *
+         * @param text El texto inicial que se mostrará en el campo de texto.
+         */
 
         public FancyTextField(String text) {
             super(text);
@@ -479,11 +524,27 @@ public class PoobkemonConfigWindow extends JFrame {
         }
     }
 
-    // Clase FancyComboBox
+    /**
+     * La clase `FancyComboBox` extiende `JComboBox` y proporciona un diseño visual personalizado
+     * para los menús desplegables en la interfaz gráfica. Incluye colores de fondo, efectos de hover
+     * y un renderizador personalizado para los elementos de la lista.
+     *
+     * @param <E> El tipo de elementos que contendrá el `FancyComboBox`.
+     */
+
     class FancyComboBox<E> extends JComboBox<E> {
         private Color backgroundColor = new Color(173, 204, 206);
         private Color hoverColor = new Color(255, 255, 255);
         private Color textColor = Color.BLACK;
+
+        /**
+         * Constructor de la clase `FancyComboBox`.
+         * Crea un menú desplegable personalizado con un diseño visual mejorado.
+         * Este menú incluye un renderizador personalizado para los elementos de la lista,
+         * colores de fondo y efectos de hover.
+         *
+         * @param items Los elementos que contendrá el menú desplegable.
+         */
 
         public FancyComboBox(E[] items) {
             super(items);
@@ -509,6 +570,14 @@ public class PoobkemonConfigWindow extends JFrame {
             g2.dispose();
         }
 
+        /**
+         * Clase interna `CustomRenderer` que extiende `DefaultListCellRenderer`.
+         * Proporciona un renderizador personalizado para los elementos de la lista
+         * en el `FancyComboBox`. Este renderizador permite personalizar el fondo,
+         * el color del texto y la fuente de los elementos, así como aplicar un
+         * efecto visual cuando un elemento está seleccionado.
+         */
+
         private class CustomRenderer extends DefaultListCellRenderer {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -523,6 +592,14 @@ public class PoobkemonConfigWindow extends JFrame {
 
     }
 
+    /**
+     * Ajusta los componentes dentro de un contenedor en función del tamaño de la ventana.
+     * Este método utiliza un tamaño base de referencia para calcular las proporciones
+     * y ajustar dinámicamente las posiciones y tamaños de los componentes gráficos.
+     *
+     * @param container El contenedor que contiene los componentes a ajustar.
+     * @param ventana   Las dimensiones actuales de la ventana.
+     */
 
     private void ajustarComponentes(Container container, Dimension ventana) {
         int baseWidth = 600; // Ancho base de referencia
@@ -543,6 +620,17 @@ public class PoobkemonConfigWindow extends JFrame {
         container.revalidate();
         container.repaint();
     }
+
+    /**
+     * Aplica una fuente personalizada a todos los componentes dentro de un contenedor.
+     * Este método recorre recursivamente todos los componentes del contenedor y, si el componente
+     * es un `JLabel`, `JTextField`, `JButton` o `JComboBox`, se le asigna la fuente especificada.
+     * Si el componente es otro contenedor, se llama al método de forma recursiva para aplicar
+     * la fuente a sus componentes internos.
+     *
+     * @param container El contenedor que contiene los componentes a los que se aplicará la fuente.
+     * @param font      La fuente personalizada que se aplicará a los componentes.
+     */
 
     private void setFontToAllComponents(Container container, Font font) {
         for (Component component : container.getComponents()) {

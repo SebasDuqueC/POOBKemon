@@ -4,7 +4,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import domain.CategoriaMovimiento;
 
+/**
+ * Clase \`MovimientoFactory\` que proporciona métodos para generar movimientos de Pokémon.
+ *
+ * Esta clase incluye un método para obtener una lista de cuatro movimientos seleccionados
+ * aleatoriamente de un conjunto predefinido. Los movimientos generados pueden variar en tipo,
+ * potencia, precisión, puntos de poder (PP) y categoría.
+ */
 public class MovimientoFactory {
+
+    /**
+     * Genera un arreglo de cuatro movimientos seleccionados aleatoriamente
+     * de una lista predefinida de movimientos. Los movimientos generados
+     * comparten el tipo especificado como parámetro.
+     *
+     * @param tipo El tipo de los movimientos a generar.
+     * @return Un arreglo de cuatro movimientos seleccionados aleatoriamente.
+     */
 
     public static Movimiento[] obtenerCuatroMovimientos(Tipo tipo) {
         // Lista fija o semi-aleatoria de movimientos por tipo

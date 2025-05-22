@@ -8,13 +8,41 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase encargada de cargar y gestionar los datos de los Pokémon desde un archivo.
+ *
+ * Esta clase proporciona métodos para leer un archivo de texto que contiene información
+ * sobre los Pokémon, instanciar objetos de tipo `Pokemon` basados en los datos leídos,
+ * y realizar operaciones relacionadas, como buscar Pokémon por nombre o listar los nombres
+ * de los Pokémon disponibles.
+ *
+ * También incluye métodos auxiliares para manejar rutas de archivos y probar la funcionalidad
+ * de carga de Pokémon.
+ */
 public class PokemonLoader {
-    
+
+    /**
+     * Obtiene la ruta del archivo que contiene los datos de los Pokémon.
+     *
+     * Este método recorre las rutas predefinidas en el arreglo `RUTAS_POKEMONS` y verifica
+     * si el archivo existe en alguna de ellas. Si encuentra el archivo, devuelve la ruta
+     * correspondiente. En caso contrario, imprime un mensaje de error y devuelve `null`.
+     *
+     * @return La ruta del archivo `pokemons.txt` si se encuentra, o `null` si no se encuentra.
+     */
     private static final String[] RUTAS_POKEMONS = {
-        "resources/pokemons.txt",
-        "POOBkemon/resources/pokemons.txt"
+        "Proyecto Final/resources/pokemons.txt"
     };
 
+    /**
+     * Busca y obtiene la ruta del archivo que contiene los datos de los Pokémon.
+     *
+     * Este método recorre las rutas predefinidas en el arreglo `RUTAS_POKEMONS` y verifica
+     * si el archivo existe en alguna de ellas. Si encuentra el archivo, devuelve la ruta
+     * correspondiente. En caso contrario, imprime un mensaje de error y devuelve `null`.
+     *
+     * @return La ruta del archivo `pokemons.txt` si se encuentra, o `null` si no se encuentra.
+     */
     private static String obtenerRutaPokemons() {
         for (String ruta : RUTAS_POKEMONS) {
             File archivo = new File(ruta);
@@ -26,6 +54,17 @@ public class PokemonLoader {
         System.err.println("No se encontró el archivo pokemons.txt en las ubicaciones conocidas.");
         return null;
     }
+
+    /**
+     * Carga una lista de Pokémon desde un archivo de texto.
+     *
+     * Este método lee un archivo de texto que contiene información sobre los Pokémon,
+     * crea instancias de objetos `Pokemon` basados en los datos leídos y los agrega a una lista.
+     * Cada línea del archivo debe contener los datos de un Pokémon separados por comas.
+     *
+     * @param rutaArchivo La ruta del archivo que contiene los datos de los Pokémon.
+     * @return Una lista de objetos `Pokemon` creados a partir de los datos del archivo.
+     */
 
     public static List<Pokemon> cargarPokemons(String rutaArchivo) {
         List<Pokemon> pokemons = new ArrayList<>();
@@ -75,6 +114,16 @@ public class PokemonLoader {
         return pokemons;
     }
 
+    /**
+     * Obtiene una lista de todos los Pokémon disponibles.
+     *
+     * Este método busca el archivo que contiene los datos de los Pokémon utilizando el método
+     * `obtenerRutaPokemons`. Si el archivo es encontrado, carga los Pokémon desde el archivo
+     * y devuelve una lista de objetos `Pokemon`. Si no se encuentra el archivo, devuelve una
+     * lista vacía.
+     *
+     * @return Una lista de objetos `Pokemon` disponibles, o una lista vacía si no se encuentra el archivo.
+     */
     public static List<Pokemon> obtenerPokemonesDisponibles() {
         String ruta = obtenerRutaPokemons();
         if (ruta != null) {
@@ -83,7 +132,19 @@ public class PokemonLoader {
         return new ArrayList<>(); // Lista vacía si no se encuentra
     }
 
-    // Método de ejemplo para probar
+
+    /**
+     * Método principal para probar la funcionalidad de carga de Pokémon.
+     *
+     * Este método busca el archivo que contiene los datos de los Pokémon utilizando el método
+     * `obtenerRutaPokemons`. Si el archivo es encontrado, carga los Pokémon desde el archivo
+     * y muestra información detallada de cada uno, incluyendo su nombre, clase, estadísticas
+     * y movimiento característico.
+     *
+     * Si no se encuentra el archivo, imprime un mensaje de error y finaliza la ejecución.
+     *
+     * @param args Argumentos de línea de comandos (no utilizados en este método).
+     */
     public static void main(String[] args) {
         String ruta = obtenerRutaPokemons();
         if (ruta == null) {
@@ -101,6 +162,17 @@ public class PokemonLoader {
         }
     }
 
+
+    /**
+     * Busca un Pokémon por su nombre.
+     *
+     * Este método recorre la lista de Pokémon disponibles y devuelve el Pokémon
+     * cuyo nombre coincide con el proporcionado. Si no se encuentra ningún Pokémon
+     * con el nombre especificado, devuelve `null`.
+     *
+     * @param nombre El nombre del Pokémon a buscar.
+     * @return El objeto `Pokemon` correspondiente al nombre proporcionado, o `null` si no se encuentra.
+     */
     public static Pokemon buscarPokemonPorNombre(String nombre) {
         List<Pokemon> pokemons = obtenerPokemonesDisponibles();
         for (Pokemon p : pokemons) {
@@ -111,6 +183,16 @@ public class PokemonLoader {
         return null; // O lanzar una excepción
     }
 
+
+    /**
+     * Obtiene una lista con los nombres de todos los Pokémon disponibles.
+     *
+     * Este método utiliza el método `obtenerPokemonesDisponibles` para cargar
+     * la lista de Pokémon y extrae únicamente los nombres de cada uno de ellos.
+     * Si no hay Pokémon disponibles, devuelve una lista vacía.
+     *
+     * @return Una lista de cadenas que representan los nombres de los Pokémon disponibles.
+     */
     public static List<String> obtenerNombresDePokemones() {
         List<Pokemon> pokemons = obtenerPokemonesDisponibles();
         List<String> nombres = new ArrayList<>();
@@ -120,6 +202,18 @@ public class PokemonLoader {
         return nombres;
     }
 
+    /**
+     * Crea un Pokémon con una lista personalizada de movimientos.
+     *
+     * Este método busca un Pokémon base por su nombre, limpia su lista de movimientos
+     * actual y la reemplaza con una lista personalizada de movimientos proporcionada.
+     * Si la lista personalizada tiene menos de 4 movimientos, se completará con movimientos
+     * genéricos del tipo del Pokémon hasta alcanzar un máximo de 4 movimientos.
+     *
+     * @param nombre El nombre del Pokémon base a buscar.
+     * @param movimientosPersonalizados Una lista de movimientos personalizados para asignar al Pokémon.
+     * @return El objeto `Pokemon` con los movimientos personalizados asignados, o `null` si no se encuentra el Pokémon.
+     */
     public static Pokemon crearPokemonConMovimientos(String nombre, List<Movimiento> movimientosPersonalizados) {
         // Buscar el pokemon base por nombre
         Pokemon pokemon = buscarPokemonPorNombre(nombre);
