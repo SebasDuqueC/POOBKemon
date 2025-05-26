@@ -193,7 +193,13 @@ public class ItemSelectionMenu extends JPanel {
                 String nombre = info[0];
                 TipoItem tipo = TipoItem.valueOf(info[1]);
                 
-                Item item = new Item(nombre, tipo, cantidad);
+                Item item;
+                if (tipo == TipoItem.REVIVIR) {
+                    item = new RevivirItem(nombre, cantidad);
+                } else {
+                    item = new PocionItem(nombre, tipo, cantidad, tipo == TipoItem.POCION ? 20 : 
+                                                                tipo == TipoItem.SUPERPOCION ? 50 : 200);
+                }
                 itemsSeleccionados.add(item);
             }
         }

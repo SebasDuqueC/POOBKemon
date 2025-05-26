@@ -3,16 +3,18 @@ package domain;
 import java.io.Serializable;
 
 /**
- * Representa un objeto o ítem que puede ser utilizado en el juego.
+ * Representa un objeto o ítem abstracto que puede ser utilizado en el juego.
  * Esta clase implementa la interfaz Serializable para permitir la persistencia de los ítems.
  * Cada ítem tiene un nombre, tipo, cantidad disponible, descripción y potencia.
+ * 
+ * Esta clase está diseñada para ser extendida por tipos específicos de ítems.
  */
-public class Item implements Serializable {
-    private String nombre;
-    private TipoItem tipo;
-    private int cantidad;
-    private String descripcion;
-    private int potencia;
+public abstract class Item implements Serializable {
+    protected String nombre;
+    protected TipoItem tipo;
+    protected int cantidad;
+    protected String descripcion;
+    protected int potencia;
 
     /**
      * Constructor que crea un ítem con un nombre, tipo y cantidad,
@@ -35,15 +37,23 @@ public class Item implements Serializable {
      * @param descripcion Una descripción del ítem.
      * @param potencia    La potencia del ítem (por ejemplo, cuántos PS recupera).
      */
-
     public Item(String nombre, TipoItem tipo, int cantidad, String descripcion, int potencia) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.cantidad = cantidad;
         this.descripcion = descripcion;
         this.potencia = potencia;
+        inicializar();
     }
     
+    /**
+     * Método de inicialización que las subclases pueden sobrescribir para
+     * realizar configuraciones adicionales durante la creación del ítem.
+     */
+    protected void inicializar() {
+        // Por defecto no hace nada, las subclases pueden sobrescribir
+    }
+
     // Getters
     /**
      * Obtiene el nombre del ítem.
@@ -82,27 +92,67 @@ public class Item implements Serializable {
 
     /**
      * Verifica si el ítem está disponible para su uso.
-     * Un ítem se considera disponible si su cantidad es mayor a 0.
+     * Las subclases pueden sobrescribir este método para implementar
+     * lógica adicional de disponibilidad.
      *
      * @return true si el ítem está disponible, false en caso contrario.
      */
     public boolean disponible() {
-        return cantidad > 0;
+        return cantidad > 0 && verificarDisponibilidadAdicional();
     }
 
     /**
-     * Reduce la cantidad disponible del ítem en 1, si hay ítems disponibles.
-     * Este método simula el uso de un ítem en el juego.
+     * Método que las subclases pueden sobrescribir para agregar
+     * condiciones adicionales de disponibilidad.T
+     *
+     * @return true por defecto, las subclases pueden cambiar este comportamiento
      */
-    public void usar() {
-        if (cantidad > 0) {
+    protected boolean verificarDisponibilidadAdicional() {
+        return true;
+    }
+
+    /**
+     * Aplica el efecto del ítem. Las subclases deben implementar este método
+     * para definir el comportamiento específico del ítem.
+     *
+     * @return true si el efecto se aplicó correctamente, false en caso contrario
+     */
+    public abstract boolean aplicarEfecto();
+
+    /**
+     * Reduce la cantidad disponible del ítem en 1, si hay ítems disponibles.
+     * Este método ahora es final para asegurar el comportamiento base,
+     * pero permite personalización a través de hooks.
+     */
+    public final void usar() {
+        if (disponible() && antesDeUsar()) {
             cantidad--;
+            despuesDeUsar();
         }
     }
 
     /**
+     * Hook que se ejecuta antes de usar el ítem.
+     * Las subclases pueden sobrescribir este método para agregar comportamiento.
+     *
+     * @return true si el ítem puede ser usado, false en caso contrario
+     */
+    protected boolean antesDeUsar() {
+        return true;
+    }
+
+    /**
+     * Hook que se ejecuta después de usar el ítem.
+     * Las subclases pueden sobrescribir este método para agregar comportamiento.
+     */
+    protected void despuesDeUsar() {
+        // Por defecto no hace nada
+    }
+
+    /**
      * Devuelve una representación en forma de cadena del ítem.
-     * El formato incluye el nombre del ítem seguido de la cantidad disponible.
+     * Este método puede ser sobrescrito por las subclases para personalizar
+     * la representación del ítem.
      *
      * @return Una cadena con el formato "nombre x cantidad".
      */

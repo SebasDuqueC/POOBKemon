@@ -32,7 +32,7 @@ public class ItemLoader {
     public static List<Item> cargarItems(String rutaArchivo) {
         List<Item> items = new ArrayList<>();
         
-        try (BufferedReader br = new BufferedReader(new FileReader("Proyecto Final/resources/items.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("resources/items.txt"))) {
             String linea;
             boolean primeraLinea = true;
             
@@ -60,7 +60,15 @@ public class ItemLoader {
                     
                     try {
                         TipoItem tipo = TipoItem.valueOf(tipoStr);
-                        Item item = new Item(nombre, tipo, 1, descripcion, potencia);
+                        Item item;
+                        
+                        if (tipo == TipoItem.REVIVIR) {
+                            item = new RevivirItem(nombre, 1);
+                        } else {
+                            // Para todos los tipos de pociones
+                            item = new PocionItem(nombre, tipo, 1, potencia);
+                        }
+                        
                         items.add(item);
                         itemsPorNombre.put(nombre, item);
                     } catch (IllegalArgumentException e) {
@@ -89,7 +97,11 @@ public class ItemLoader {
         // Devolver una copia del item con cantidad 1
         Item original = itemsPorNombre.get(nombre);
         if (original != null) {
-            return new Item(original.getNombre(), original.getTipo(), 1, original.getDescripcion(), original.getPotencia());
+            if (original.getTipo() == TipoItem.REVIVIR) {
+                return new RevivirItem(original.getNombre(), 1);
+            } else {
+                return new PocionItem(original.getNombre(), original.getTipo(), 1, original.getPotencia());
+            }
         }
         return null;
     }
@@ -114,7 +126,11 @@ public class ItemLoader {
     public static Item crearItemConCantidad(String nombre, int cantidad) {
         Item base = buscarItemPorNombre(nombre);
         if (base != null) {
-            return new Item(base.getNombre(), base.getTipo(), cantidad, base.getDescripcion(), base.getPotencia());
+            if (base.getTipo() == TipoItem.REVIVIR) {
+                return new RevivirItem(base.getNombre(), cantidad);
+            } else {
+                return new PocionItem(base.getNombre(), base.getTipo(), cantidad, base.getPotencia());
+            }
         }
         return null;
     }
